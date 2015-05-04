@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-make river_wq nc file
-okada 2014/10/12
+2014/10/12 okada make this file.
+2015/05/01 okada remake it, but test data are no provision.
 """
 
 import csv
@@ -19,7 +19,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     s_rho   = 20
     n_river = 34
-    units_t ='days since 1968-05-23 09:00:00' 
+    units_t ='days since 1968-05-23 09:00:00'
 
     time_out = {}
     meta_out = {}
@@ -29,7 +29,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     #=======================================================================
 
-    print 'meta part' 
+    print 'meta part'
 
     meta     = pd.read_csv(metafile, index_col='river')
     meta_out['river']           = [i+1 for i in range(n_river)]
@@ -43,7 +43,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     #=======================================================================
 
-    print 'hourly part' 
+    print 'hourly part'
 
     rain = pd.read_csv(rainfile, parse_dates=[['date', 'hour']], index_col='date_hour', na_values='--').fillna(0)
     rain = pd.rolling_mean(rain, window=24).fillna(0)
@@ -76,7 +76,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     #=======================================================================
 
-    print 'annually part' 
+    print 'annually part'
 
     t_start = netCDF4.date2num( datetime.datetime(2012,1,1), units_t )
     t_end   = netCDF4.date2num( datetime.datetime(2013,1,1), units_t )
@@ -98,7 +98,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     #=======================================================================
 
-    print 'daily part 1: sta5' 
+    print 'daily part 1: sta5'
 
     wq    = pd.read_csv(wqfile, parse_dates='time', index_col='time').interpolate(method='time')
     daily = wq.resample('D', how='mean')
@@ -110,7 +110,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
     dail_out['river_chlorophyll']   = np.ndarray(shape=[td_d, s_rho, n_river])
     dail_out['river_phytoplankton'] = np.ndarray(shape=[td_d, s_rho, n_river])
     dail_out['river_zooplankton']   = np.ndarray(shape=[td_d, s_rho, n_river])
-        
+
     Chl2C = 0.05   # okada (=1/20 gChl/gC)
     PhyCN = 6.625  # (=106/16 molC/molN)
 
@@ -122,7 +122,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     #=======================================================================
 
-    """print 'daily part 2: lq' 
+    """print 'daily part 2: lq'
 
     csv_lq = 'lq.csv'
 
@@ -194,7 +194,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
     #-----------------------------------------------------------------------
 
-    print 'daily part 2: const' 
+    print 'daily part 2: const'
 
     data = ['NH4', 'NO3', 'SDeN', 'LDeN', 'PO4', 'SDeP', 'LDeP', 'SDeC', 'LDeC']
     for name in data:
@@ -237,7 +237,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
     dail_names = dail_out.keys()
     #=======================================================================
 
-    print 'writing part' 
+    print 'writing part'
 
     nc     = netCDF4.Dataset(ncname, 'w', format='NETCDF3_CLASSIC')
 
@@ -246,7 +246,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
     nc.createDimension('time_annually', td_a )
     nc.createDimension('time_daily',    td_d )
     nc.createDimension('time_hourly',   td_h )
-     
+
     time_a = nc.createVariable('river_time_annually', dtype('double').char, ('time_annually',) )
     time_d = nc.createVariable('river_time_daily',    dtype('double').char, ('time_daily',)    )
     time_h = nc.createVariable('river_time_hourly',   dtype('double').char, ('time_hourly',)   )
@@ -330,5 +330,5 @@ if __name__ == '__main__':
     yodofile = 'yodo_2012.csv'
     yamatofile = 'yamato_2012.csv'
     wqfile = 'wq_2012.csv'
-    
+
     make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile)
