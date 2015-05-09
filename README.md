@@ -2,24 +2,18 @@
 
 Tools for ROMS in Python
 
-## make
+## How to install
 
-* make_*_file.py
+```sh
+python setup.py install
+```
 
-You should change data source file names in these files.
+## example
 
-## hview & basemap
+```py
+import romspy
 
-* basemap.py
+nc = romspy.dataset(grd='test_grd.nc')
 
-You need coastal line data file.
-
-* hview.py
-* hview_grd.py
-* hview_temp.py
-
-## tplot
-
-* tplot_*.py
-
-You should change netCDF file name.
+nc.basemap()
+```
