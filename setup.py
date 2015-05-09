@@ -6,5 +6,7 @@ setup(name='romspy',
       author='OKADA Teruhisa',
       author_email='okadate@gmail.com',
       url='https://github.com/okadate/romspy/',
-      packages=['romspy', 'romspy.make']
+      packages=['romspy', 
+                'romspy.make',
+                'romspy.convert']
      )
