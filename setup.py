@@ -1,7 +1,7 @@
 from distutils.core import setup
 
 setup(name='romspy',
-      version='1.0',
+      version='1.1',
       description='Tools for ROMS in Python',
       author='OKADA Teruhisa',
       author_email='okadate@gmail.com',
