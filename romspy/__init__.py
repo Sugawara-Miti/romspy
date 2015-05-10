@@ -11,6 +11,7 @@ from make_frc_file import make_frc_file
 from make_river_file import make_river_file
 from make_obs_file import make_obs_file
 
+from basemap import basemap
 from hview import hview
 
 from tview_obs import tview_obs_from_csv
