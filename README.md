@@ -2,18 +2,22 @@
 
 Tools for ROMS in Python
 
-## How to install
-
+### Install
 ```sh
 python setup.py install
 ```
 
-## example
+### example
+```py
+import romspy
 
+romspy.hview('test.nc', 'test.png', 'temp', t=0, k=20)
+```
+
+### future version
 ```py
 import romspy
 
 nc = romspy.dataset(grd='test_grd.nc')
-
 nc.basemap()
 ```
