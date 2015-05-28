@@ -5,6 +5,7 @@ Tools for ROMS in Python
 ## How to install
 
 ```sh
+cd romspy
 python setup.py install
 ```
 
@@ -14,6 +15,5 @@ python setup.py install
 import romspy
 
 nc = romspy.dataset(grd='test_grd.nc')
-
 nc.basemap()
 ```
