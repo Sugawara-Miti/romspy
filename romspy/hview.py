@@ -14,6 +14,7 @@ import datetime
 import pandas as pd
 
 from basemap import basemap
+from hplot_stations import hplot_stations
 
 def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
           interval=1, fmt='%i', cff=1.0, cblabel=None, obsfile=None,
@@ -61,6 +62,9 @@ def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
     else:
         basemap()
 
+    if obsfile is not None:
+        hplot_stations(obsfile)
+
     # finalize
     if ndim is 2:
         title = 'Model domein & bathymetry'
@@ -68,34 +72,35 @@ def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
         dtime = netCDF4.num2date(ocean_time, units=tunits)
         title = datetime.datetime.strftime(dtime,'%Y-%m-%d %H:%M:%S')
     plt.title(title)
+
     if figfile is not None:
         plt.savefig(figfile, bbox_inches='tight')
         plt.close()
 
 if __name__ == '__main__':
-    
+
     from hplot_stations import hplot_stations
     from hplot_values import hplot_values
 
     test = 2
-    
+
     if test == 0:
         hview('../example/OB500/nc/ob500_avg.nc',
               '../example/OB500/ob500_avg_temp_t0_k20.png',
               vname='temp', t=0, k=20, cblabel='Temperature[C]')
-        
+
     if test == 1:
         hview('../example/OB500/nc/ob500_grd-v5.nc',
               vname='h', cblabel='Depth[m]',
               vmax=0, vmin=-120, interval=20, cff=-1)
         hplot_stations('../../OB500/Data/ob500_obs_tsdc.nc')
         plt.savefig('../example/OB500/ob500_grd-v5.png', bbox_inches='tight')
-        
+
     if test == 2:
         hview('../example/OB500/nc/ob500_avg.nc',
               vname='temp', t=0, k=20, cblabel='Temperature[C]')
-        
+
         hplot_values('../../OB500/Data/ob500_obs_tsdc.nc',
                      6, datetime.datetime(2012,8,24,6))
-        
+
         plt.savefig('../example/OB500/ob500_avg_temp_t0_k20_values.png', bbox_inches='tight')

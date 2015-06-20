@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-2015/05/01 okada make this file.
-2015/05/10 okada enable hview to handle grid nc file,
-                 and add plot_obs_positions.
+2015/05/27 okada make this file.
 """
 
 import netCDF4
@@ -13,26 +11,24 @@ import numpy as np
 import datetime
 import pandas as pd
 
-from basemap import basemap
-
-def hview(ncfile, pngfile, vname, t=-1, k=None, vmax=None, vmin=None,
+def vview(linefile, ncfile, vname, t=-1, k=None, vmax=None, vmin=None,
           interval=1, fmt='%i', cff=1.0, cblabel=None, obsfile=None):
+
+    # resd line
+    line = pd.read_csv(linefile)
 
     # read
     nc = netCDF4.Dataset(ncfile, 'r')
-    x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
-    y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
+    #x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
+    #y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
     ndim = len(nc.variables[vname].shape)
-    if ndim is 2:
-        var2d = nc.variables[vname][:,:] * cff
-    else:
-        ocean_time = nc.variables['ocean_time'][t]
-        tunits = nc.variables['ocean_time'].units
-        if ndim is 4:
-            var2d = nc.variables[vname][t,k-1,:,:] * cff
-        if ndim is 3:
-            var2d = nc.variables[vname][t,:,:] * cff
+    ocean_time = nc.variables['ocean_time'][t]
+    tunits = nc.variables['ocean_time'].units
+    var2d = np.ndarray(shape=[20, len(line)])
+    for i in range(len(line)):
+        var2d[:,i] = nc.variables[vname][t, :, line.x_rho[i], line.y_rho[i] * cff]
     nc.close()
+
 
     # pcolor
     plt.figure(figsize=(6,5))
@@ -92,7 +88,7 @@ def plot_obs_positions(obsfile):
     else:
         print obsfile[-3:]
         pass
-    
+
     plt.scatter(df.lon, df.lat, s=40, c='w', marker='o', lw=2)
 
     names = ['Sta.{}'.format(s) for s in df.station.values]
@@ -106,15 +102,9 @@ def plot_obs_positions(obsfile):
 
 if __name__ == '__main__':
 
-    test = 1
-    
+    test = 0
+
     if test == 0:
-        hview('../example/OB500/nc/ob500_avg.nc',
-              '../example/OB500/ob500_avg_temp_t0_k20.png',
-              'temp', t=0, k=20, cblabel='Temperature[C]')
-    if test == 1:
-        hview('../example/OB500/nc/ob500_grd-v5.nc',
-              '../example/OB500/ob500_grd-v5.png',
-              'h', cblabel='Depth[m]', vmax=0, vmin=-120, interval=20, cff=-1,
-              obsfile='/home/work/okada/OB500/Data/ob500_obs_tsdc.nc')
-              #obsfile='/home/work/okada/OB500/OBS/st/obs_stations.csv')
+        vview('/Users/teruhisa/Dropbox/Data/line.csv',
+              '/Users/teruhisa/Dropbox/Data/ob500_rst.nc',
+              'chlorophyll')
