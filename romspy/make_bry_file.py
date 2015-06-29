@@ -16,7 +16,8 @@ bio_units = {'others':'millimole meter-3',
              'alkalinity':'milliequivalens meter-3'}
 
 
-def make_bry_file(dims, dates, zetafiles, wqfiles, biofiles=False, ncfile='test_bry.nc'):
+def make_bry_file(dims, dates, zetafiles, wqfiles, biofiles=False, 
+                  ncfile='test_bry.nc'):
 
     """
     use bio_fennel_linear()
@@ -58,12 +59,12 @@ def make_bry_file(dims, dates, zetafiles, wqfiles, biofiles=False, ncfile='test_
     for name in bio_out.keys():
         units = bio_units[name] if name in bio_units else bio_units['others']
         bry_write_3d(nc, name, bio_out[name], 'time_biology', 'rho', units)
-        
+
     nc.close()
 
 
 if __name__ == '__main__':
-    
+
     dims = {'xi':117, 'eta':124, 's':20}
 
     dates = ['2012-01-01', '2013-01-01']
@@ -72,13 +73,13 @@ if __name__ == '__main__':
                  'test/data/zeta_hour/2012_Ei/zeta.dat',
                  'test/data/zeta_hour/2012_Kainan/zeta.dat',
                  'test/data/zeta_hour/2012_Takasago/zeta.dat']
-                 
+
     wqfiles = {'w':'test/data/wq_akashi_2012.csv',
                's':'test/data/wq_sumoto_2012.csv'}
-                 
+
     biofiles = {'w':'test/data/fennel_w_linear.csv',
                 's':'test/data/fennel_s_linear.csv'}
 
     ncfile = 'ob500_bry_fennel_2012_linear.nc'
-                 
+
     make_bry_file(dims, dates, zetafiles, wqfiles, biofiles, ncfile)

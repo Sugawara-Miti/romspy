@@ -24,9 +24,7 @@ def basemap(data='deg_OsakaBayMap_okada.bln'):
     # Plot patches
     p = PatchCollection(patches)#, alpha=0.5)
     p.set_facecolor('w')
-
     ax = plt.gca()
-
     ax.add_collection(p)
 
     # Set figure options
@@ -35,7 +33,7 @@ def basemap(data='deg_OsakaBayMap_okada.bln'):
     ax.xaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     ax.set_xlim([134.82, 135.48])
-    ax.set_ylim([ 34.20,  34.76])
+    ax.set_ylim([34.20, 34.76])
 
 def _read_lands(data):
 
@@ -57,7 +55,7 @@ def _read_lands(data):
         patches.append(lands)
     return patches
 
-if __name__=='__main__':
+if __name__ == '__main__':
 
     basemap()
     plt.show()

@@ -14,8 +14,8 @@ from basemap import basemap
 
 class Hview(object):
 
-    def __init__(self, ncfile, vname, k=None, vmax=None, vmin=None,
-          interval=1, fmt='%i', cff=1.0, cblabel=None):
+    def __init__(self, ncfile, vname, k=None, vmax=None, vmin=None, 
+                 interval=1, fmt='%i', cff=1.0, cblabel=None):
         self.nc = netCDF4.Dataset(ncfile, 'r')
         self.x_rho = self.nc.variables['lon_rho'][0,:]-0.00449/2
         self.y_rho = self.nc.variables['lat_rho'][:,0]-0.00546/2
@@ -35,7 +35,7 @@ class Hview(object):
         self.cbar.ax.set_ylabel(cblabel)
 
     def __call__(self, t):
-        
+
         self.ocean_time = self.nc.variables['ocean_time'][t]
         if self.ndim is 4:
             var2d = self.nc.variables[self.vname][t,self.k-1,:,:] * self.cff
@@ -56,7 +56,6 @@ if __name__ == '__main__':
     fig = plt.figure(figsize=(6,5))
 
     hview = Hview(ncfile, 'temp', k=1, cblabel='Temperature[C]')
-    ani = animation.FuncAnimation(fig, hview, frames=np.arange(24), interval=1000, blit=True,
-        repeat_delay=1000)
-    
+    ani = animation.FuncAnimation(fig, hview, frames=np.arange(24), interval=1000,
+                                  blit=True, repeat_delay=1000)
     plt.show()

@@ -6,9 +6,6 @@
 
 import netCDF4
 import matplotlib.pyplot as plt
-import matplotlib
-import numpy as np
-import datetime
 import pandas as pd
 
 def hplot_stations(obsfile):
@@ -32,14 +29,14 @@ def hplot_stations(obsfile):
     else:
         print obsfile[-3:]
         pass
-    
+
     plt.scatter(df.lon, df.lat, s=40, c='w', marker='o', lw=2)
 
+    """
     names = ['Sta.{}'.format(s) for s in df.station.values]
     bbox_props = dict(boxstyle="square", fc="w")
-
-    """
     for x, y, name in zip(obs_lon, obs_lat, names):
         if name == 'Sta.4' or name == 'Sta.5' or name == 'Sta.12':
-            plt.text(x-0.01, y-0.01, name, ha="right", va="top", bbox=bbox_props, fontsize=10)
+            plt.text(x-0.01, y-0.01, name, ha="right", va="top", bbox=bbox_props, 
+                     fontsize=10)
     """

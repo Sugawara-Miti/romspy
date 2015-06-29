@@ -11,10 +11,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 import datetime
-import pandas as pd
 
 from basemap import basemap
-from hplot_stations import hplot_stations
 
 def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
           interval=1, fmt='%i', cff=1.0, cblabel=None, obsfile=None,
@@ -103,4 +101,5 @@ if __name__ == '__main__':
         hplot_values('../../OB500/Data/ob500_obs_tsdc.nc',
                      6, datetime.datetime(2012,8,24,6))
 
-        plt.savefig('../example/OB500/ob500_avg_temp_t0_k20_values.png', bbox_inches='tight')
+        plt.savefig('../example/OB500/ob500_avg_temp_t0_k20_values.png', 
+                    bbox_inches='tight')
