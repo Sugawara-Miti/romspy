@@ -15,8 +15,7 @@ import datetime
 from basemap import basemap
 
 def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
-          interval=1, fmt='%i', cff=1.0, cblabel=None, obsfile=None,
-          mapfile=None):
+          interval=1, fmt='%i', cff=1.0, cblabel=None, mapfile=None, cmap='jet'):
 
     # read
     nc = netCDF4.Dataset(ncfile, 'r')
@@ -35,12 +34,12 @@ def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
     nc.close()
 
     # pcolor
-    plt.figure(figsize=(6,5))
+    ax = plt.gca()
     X, Y = np.meshgrid(x_rho, y_rho)
     if vmax is not None:
-        PC = plt.pcolor(X, Y, var2d, vmax=vmax, vmin=vmin)
+        PC = ax.pcolor(X, Y, var2d, cmap=cmap, vmax=vmax, vmin=vmin)
     else:
-        PC = plt.pcolor(X, Y, var2d)
+        PC = ax.pcolor(X, Y, var2d, cmap=cmap)
     cbar = plt.colorbar(PC)
     cbar.ax.set_ylabel(cblabel)
 
@@ -59,9 +58,6 @@ def hview(ncfile, figfile=None, vname=None, t=-1, k=None, vmax=None, vmin=None,
         basemap(mapfile)
     else:
         basemap()
-
-    if obsfile is not None:
-        hplot_stations(obsfile)
 
     # finalize
     if ndim is 2:
