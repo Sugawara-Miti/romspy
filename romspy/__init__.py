@@ -13,6 +13,7 @@ from make_obs_file import make_obs_file
 
 from basemap import basemap
 from hview import hview
+from hview2 import hview2
 from hplot_stations import hplot_stations
 from hplot_values import hplot_values
 
