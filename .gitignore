@@ -4,3 +4,5 @@ build/
 example/*/data
 example/*/nc
 .ipynb_checkpoints/
+
+*.nc
