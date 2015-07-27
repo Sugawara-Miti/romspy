@@ -1,13 +1,10 @@
 # -*- coding:utf-8 -*-
 
 """
-
 2015/05/02 okada create this file.
 2015/06/30 okada update.
-
 """
 
-import shutil
 import netCDF4
 import numpy as np
 from numpy import dtype
@@ -30,16 +27,14 @@ def make_obs_file(ncfile, csvfile, stafile):
     print df.head()
 
     """
-
     You need to change each errors
-    
     """
 
     df['error'] = 0.0
-    df.loc[df.type==6, "error"] = 0.1
-    df.loc[df.type==7, "error"] = 0.1
-    df.loc[df.type==10, "error"] = 0.1
-    df.loc[df.type==19, "error"] = 0.1
+    df.loc[df.type==6, "error"] = 0.5   #temp
+    df.loc[df.type==7, "error"] = 0.5   #salt
+    df.loc[df.type==10, "error"] = 1.0  #chlo
+    df.loc[df.type==15, "error"] = 10.0  #oxygen
 
     df['xgrid'] = 0
     df['ygrid'] = 0
@@ -67,9 +62,7 @@ def make_obs_file(ncfile, csvfile, stafile):
     error_out = df.error.tolist()
 
     """
-    
     write netcdf
-
     """
 
     nc = netCDF4.Dataset(ncfile, 'w', format='NETCDF3_CLASSIC')
@@ -84,46 +77,46 @@ def make_obs_file(ncfile, csvfile, stafile):
     for name in nc.dimensions.keys():
         print nc.dimensions[name]
 
-    spherical = nc.createVariable('spherical', dtype('int32').char )
+    spherical = nc.createVariable('spherical', dtype('int32').char)
     spherical.long_name = 'grid type logical seitch'
     spherical.flag_values = [0, 1]
     spherical.flag_meanings = 'Cartesian Spherical'
-    
-    Nobs = nc.createVariable('Nobs', dtype('int32').char, ('survey',) )
+
+    Nobs = nc.createVariable('Nobs', dtype('int32').char, ('survey',))
     Nobs.long_name = 'number of observations with the same survey time'
-    
-    survey_time = nc.createVariable('survey_time', dtype('double').char, ('survey',) )
+
+    survey_time = nc.createVariable('survey_time', dtype('double').char, ('survey',))
     survey_time.long_name = 'survey time'
     survey_time.units = tunit
     survey_time.calendar = 'gregorian'
-    
-    obs_variance = nc.createVariable('obs_variance', dtype('double').char, ('state_variable',) )
+
+    obs_variance = nc.createVariable('obs_variance', dtype('double').char, ('state_variable',))
     obs_variance.long_name = 'global time and space observation variance'
-    
-    obs_type = nc.createVariable('obs_type', dtype('int32').char, ('datum',) )
+
+    obs_type = nc.createVariable('obs_type', dtype('int32').char, ('datum',))
     obs_type.long_name = 'model state variable associated with observation'
     obs_type.flag_values = [1,2,3,4,5,6,7,8,9,10,11]
     obs_type.flag_meanings = 'zeta ubar vbar u v temperature salinity NO3 phytoplankton zooplankton detritus'
-    
-    obs_provenance = nc.createVariable('obs_provenance', dtype('int32').char, ('datum',) )
+
+    obs_provenance = nc.createVariable('obs_provenance', dtype('int32').char, ('datum',))
     obs_provenance.long_name = 'observation origin'
     obs_provenance.flag_values = [1]
     obs_provenance.flag_meanings = 'OBWQ13'
-    
-    obs_station = nc.createVariable('obs_station', dtype('int32').char, ('datum',) )
+
+    obs_station = nc.createVariable('obs_station', dtype('int32').char, ('datum',))
     obs_station.long_name = 'observation station number'
     obs_station.flag_values = [i+1 for i in range(13)]
     obs_station.flag_meanings = 'akashi sumoto kanku kobe yodo hannan sakai rokko hamadera awaji suma osaka kishiwada'
 
-    obs_time  = nc.createVariable('obs_time', dtype('double').char, ('datum',) )
-    obs_depth = nc.createVariable('obs_depth', dtype('double').char, ('datum',) )
-    obs_Xgrid = nc.createVariable('obs_Xgrid', dtype('double').char, ('datum',) )
-    obs_Ygrid = nc.createVariable('obs_Ygrid', dtype('double').char, ('datum',) )
-    obs_Zgrid = nc.createVariable('obs_Zgrid', dtype('double').char, ('datum',) )
-    obs_lon   = nc.createVariable('obs_lon', dtype('double').char, ('datum',) )
-    obs_lat   = nc.createVariable('obs_lat', dtype('double').char, ('datum',) )
-    obs_error = nc.createVariable('obs_error', dtype('double').char, ('datum',) )
-    obs_value = nc.createVariable('obs_value', dtype('double').char, ('datum',) )
+    obs_time  = nc.createVariable('obs_time', dtype('double').char, ('datum',))
+    obs_depth = nc.createVariable('obs_depth', dtype('double').char, ('datum',))
+    obs_Xgrid = nc.createVariable('obs_Xgrid', dtype('double').char, ('datum',))
+    obs_Ygrid = nc.createVariable('obs_Ygrid', dtype('double').char, ('datum',))
+    obs_Zgrid = nc.createVariable('obs_Zgrid', dtype('double').char, ('datum',))
+    obs_lon   = nc.createVariable('obs_lon', dtype('double').char, ('datum',))
+    obs_lat   = nc.createVariable('obs_lat', dtype('double').char, ('datum',))
+    obs_error = nc.createVariable('obs_error', dtype('double').char, ('datum',))
+    obs_value = nc.createVariable('obs_value', dtype('double').char, ('datum',))
 
     obs_time.long_name  = 'time of observation'
     obs_time.units      = tunit
@@ -162,9 +155,10 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     nc.close()
     print 'Finish!'
-    
+
 if __name__ == '__main__':
 
-    make_obs_file('ob500_obs_obweb_2012.nc', 
-        '/Users/teruhisa/Dropbox/Data/obweb/converted_obs_2012.csv', 
-        '/Users/teruhisa/Dropbox/Data/ob500_stations.csv')
+    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_obweb_2012.nc'
+    inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
+    stafile = '/Users/teruhisa/Dropbox/Data/ob500_stations.csv'
+    make_obs_file(outfile, inpfile, stafile)

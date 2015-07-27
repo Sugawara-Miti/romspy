@@ -13,7 +13,7 @@ def prepare(station, csvfile):
     df['station'] = station
 
     if station in [3, 4, 5, 6, 7, 12, 13]:
-        vtypes = {'temperature':6, 'salilnity':7, 'DO':19, 'chlorophyll':10}
+        vtypes = {'temperature':6, 'salilnity':7, 'DO':15, 'chlorophyll':10}
     elif station in [1, 2, 10, 11]:
         vtypes = {'temperature':6, 'salilnity':7}
     elif station in [8, 9]:
@@ -28,11 +28,10 @@ def prepare(station, csvfile):
             obs = obs.append(var)
         except:
             obs = var
-
     return obs
 
 obs = prepare(1, '/Users/teruhisa/Dropbox/Data/obweb/db/akashi_q2.csv')
-"""obs = obs.append(prepare(2, '/Users/teruhisa/Dropbox/Data/obweb/db/sumoto_q2.csv'))
+obs = obs.append(prepare(2, '/Users/teruhisa/Dropbox/Data/obweb/db/sumoto_q2.csv'))
 obs = obs.append(prepare(3, '/Users/teruhisa/Dropbox/Data/obweb/db/kansaiAP_q1.csv'))
 obs = obs.append(prepare(4, '/Users/teruhisa/Dropbox/Data/obweb/db/kobe_q1.csv'))
 obs = obs.append(prepare(5, '/Users/teruhisa/Dropbox/Data/obweb/db/yodo_q1.csv'))
@@ -41,6 +40,6 @@ obs = obs.append(prepare(7, '/Users/teruhisa/Dropbox/Data/obweb/db/sakaihama_q1.
 obs = obs.append(prepare(10, '/Users/teruhisa/Dropbox/Data/obweb/db/awaji_q2.csv'))
 obs = obs.append(prepare(11, '/Users/teruhisa/Dropbox/Data/obweb/db/suma_q2.csv'))
 obs = obs.append(prepare(12, '/Users/teruhisa/Dropbox/Data/obweb/db/osaka_q1.csv'))
-obs = obs.append(prepare(13, '/Users/teruhisa/Dropbox/Data/obweb/db/kishiwada_q1.csv'))"""
+obs = obs.append(prepare(13, '/Users/teruhisa/Dropbox/Data/obweb/db/kishiwada_q1.csv'))
 
-obs.to_csv('/Users/teruhisa/Dropbox/Data/obweb/converted_obs_2012_small.csv', index=False)
+obs.to_csv('/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv', index=False)
