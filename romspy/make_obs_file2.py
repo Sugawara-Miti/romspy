@@ -1,10 +1,7 @@
 # -*- coding:utf-8 -*-
 
 """
-
 2015/05/02 okada create this file.
-2015/06/30 okada update.
-
 """
 
 import shutil
@@ -12,65 +9,13 @@ import netCDF4
 import numpy as np
 from numpy import dtype
 import datetime
-import pandas as pd
 
-def make_obs_file(ncfile, csvfile, stafile):
+def make_obs_file(ncfile):
 
-    print 'ncfile:', ncfile
-    print 'obsfile:', csvfile
-    print 'stafile:', stafile
-    print 'numpy version:', np.__version__, '(> 1.9.0)'
-
-    tunit = 'hours since 1968-05-22 00:00:00'
-    state_variable = 19
-
-    df = pd.read_csv(csvfile, parse_dates=True, index_col='datetime')
-    df = df.sort()
-    df.depth = -df.depth
-    print df.head()
-
-    """
-
-    You need to change each errors
-    
-    """
-
-    df['error'] = 0.0
-    df.loc[df.type==6, "error"] = 0.1
-    df.loc[df.type==7, "error"] = 0.1
-    df.loc[df.type==10, "error"] = 0.1
-    df.loc[df.type==19, "error"] = 0.1
-
-    df['xgrid'] = 0
-    df['ygrid'] = 0
-    df['lon'] = 0.0
-    df['lat'] = 0.0
-    sta = pd.read_csv(stafile, index_col='station')
-    for i in range(1,14):
-        df.ix[df.station==i, "xgrid"] = sta.xgrid[i]
-        df.loc[df.station==i, "ygrid"] = sta.xgrid[i]
-        df.loc[df.station==i, "lat"] = sta.lat[i]
-        df.loc[df.station==i, "lon"] = sta.lon[i]
-
-    time = [ts.to_datetime() for ts in df.index.tolist()]
-    time_out = netCDF4.date2num(time, tunit)
-    survey_out, nobs_out = np.unique(time_out, return_counts=True)
-
-    station_out = df.station.tolist()
-    depth_out = df.depth.tolist()
-    type_out = df.type.tolist()
-    value_out = df.value.tolist()
-    xgrid_out = df.xgrid.tolist()
-    ygrid_out = df.ygrid.tolist()
-    lon_out = df.lon.tolist()
-    lat_out = df.lat.tolist()
-    error_out = df.error.tolist()
-
-    """
-    
-    write netcdf
-
-    """
+    tunit = 'days since 1968-05-23 00:00:00'
+    vari_out = [1 for _ in range(11)]
+    surv_out = [t for t in range(10)]
+    nobs_out = [1 for _ in range(10)]
 
     nc = netCDF4.Dataset(ncfile, 'w', format='NETCDF3_CLASSIC')
 
@@ -78,9 +23,9 @@ def make_obs_file(ncfile, csvfile, stafile):
     nc.history = now.strftime('%Y-%m-%d %H:%M:%S')
     nc.author = 'OKADA Teruhisa'
 
-    nc.createDimension('survey', len(survey_out))
-    nc.createDimension('state_variable', state_variable)
-    nc.createDimension('datum', sum(nobs_out))
+    nc.createDimension('survey',         len(surv_out))
+    nc.createDimension('state_variable', len(vari_out))
+    nc.createDimension('datum',          sum(nobs_out))
     for name in nc.dimensions.keys():
         print nc.dimensions[name]
 
@@ -141,21 +86,21 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     spherical[:] = 0
     Nobs[:] = nobs_out
-    survey_time[:] = survey_out
-    obs_variance[:] = 0
-    obs_provenance[:] = 0
+    survey_time[:] = surv_out
+    obs_variance[:] = vari_out
+    obs_provenance[:] = 1
 
-    obs_time[:] = time_out
-    obs_type[:]  = type_out
-    obs_depth[:] = depth_out
-    obs_Xgrid[:] = xgrid_out
-    obs_Ygrid[:] = ygrid_out
+    obs_time[:] = surv_out
+    obs_type[:]  = 6
+    obs_depth[:] = -100.0
+    obs_Xgrid[:] = 2
+    obs_Ygrid[:] = 2
     obs_Zgrid[:] = 0
-    obs_station[:] = station_out
-    obs_lon[:]   = lon_out
-    obs_lat[:]   = lat_out
-    obs_error[:] = error_out
-    obs_value[:] = value_out
+    obs_station[:] = 1
+    obs_lon[:]   = 0
+    obs_lat[:]   = 0
+    obs_error[:] = 0.1
+    obs_value[:] = 4.1
 
     for name in nc.variables.keys():
         print name, nc.variables[name][:]
@@ -165,6 +110,4 @@ def make_obs_file(ncfile, csvfile, stafile):
     
 if __name__ == '__main__':
 
-    make_obs_file('ob500_obs_obweb_2012.nc', 
-        '/Users/teruhisa/Dropbox/Data/obweb/converted_obs_2012.csv', 
-        '/Users/teruhisa/Dropbox/Data/ob500_stations.csv')
+    make_obs_file('bio_toy_obs.nc')
