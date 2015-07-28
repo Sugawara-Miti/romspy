@@ -1,54 +1,88 @@
 # -*- coding: utf-8 -*-
-# <nbformat>3.0</nbformat>
-
-# <codecell>
 
 import netCDF4
 import datetime
-import shutil
-import os
+import numpy as np
+from numpy import dtype
 
-def his2ini(hisfile, inifile, dstart):
 
-    print hisfile
-    print inifile
-    print dstart
+def make_his2ini(hisfile, inifile, dstart):
 
-    try: 
-        cmd = 'copy {} {}'.format(hisfile, inifile)
-        os.system(cmd)
-    except:
-        shutil.copyfile(rstfile, inifile)
+    tunit_GMT = 'days since 1968-05-23 00:00:00 GMT'
+    tunit_JST = 'days since 1968-05-23 09:00:00 GMT'
 
-    nc = netCDF4.Dataset(inifile, 'r+')
+    his = netCDF4.Dataset(hisfile, 'r')
+    ini = netCDF4.Dataset(inifile, 'w', format='NETCDF3_CLASSIC')
 
-    print nc.variables['ocean_time'][:]
+    time = his.variables['ocean_time']
+    dstart = netCDF4.date2num(dstart, tunit_JST)
+    t = np.where(time[:]==dstart)[0][0]
 
-    # <codecell>
+    for name in his.dimensions.keys():
+        if name == 'ocean_time':
+            ini.createDimension(name, 1)
+        else:
+            ini.createDimension(name, len(his.dimensions[name]))
 
-    nc.variables['zeta'][:,:,:] = 0.0
-    nc.variables['ubar'][:,:,:] = 0.0
-    nc.variables['vbar'][:,:,:] = 0.0
-    nc.variables['u'][:,:,:,:]  = 0.0
-    nc.variables['v'][:,:,:,:]  = 0.0
+    time = ini.createVariable('ocean_time', dtype('double').char, ('ocean_time',))
+    zeta = ini.createVariable('zeta', dtype('float32').char, ('ocean_time', 'eta_rho', 'xi_rho'))
+    ubar = ini.createVariable('ubar', dtype('float32').char, ('ocean_time', 'eta_u', 'xi_u'))
+    vbar = ini.createVariable('vbar', dtype('float32').char, ('ocean_time', 'eta_v', 'xi_v'))
+    u    = ini.createVariable('u', dtype('float32').char, ('ocean_time', 's_rho', 'eta_u', 'xi_u'))
+    v    = ini.createVariable('v', dtype('float32').char, ('ocean_time', 's_rho', 'eta_v', 'xi_v'))
+    temp = ini.createVariable('temp', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
+    salt = ini.createVariable('salt', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
 
-    # <codecell>
+    time.units = tunit_GMT
+    zeta.units = 'meter'
+    ubar.units = 'meter second-1'
+    vbar.units = 'meter second-1'
+    u.units    = 'meter second-1'
+    v.units    = 'meter second-1'
+    temp.units = 'Celsius'
+    salt.units = 'PSU'
 
-    units  = nc.variables['ocean_time'].units
-    dstart = dstart - datetime.timedelta(hours=9)
-    start  = netCDF4.date2num(dstart, units)
-    
-    nc.variables['ocean_time'][:] = start
+    time[:]     = his.variables['ocean_time'][t]
+    zeta[:,:,:] = his.variables['zeta'][t,:,:]
+    ubar[:,:,:] = his.variables['ubar'][t,:,:]
+    vbar[:,:,:] = his.variables['vbar'][t,:,:]
+    u[:,:,:,:]  = his.variables['u'][t,:,:,:]
+    v[:,:,:,:]  = his.variables['v'][t,:,:,:]
+    temp[:,:,:,:] = his.variables['temp'][t,:,:,:]
+    salt[:,:,:,:] = his.variables['salt'][t,:,:,:]
 
-    print nc.variables['ocean_time'][:]
+    zeta.time = 'ocean_time'
+    ubar.time = 'ocean_time'
+    vbar.time = 'ocean_time'
+    u.time    = 'ocean_time'
+    v.time    = 'ocean_time'
+    temp.time = 'ocean_time'
+    salt.time = 'ocean_time'
 
-    nc.close()
+    add_bio(ini, his, t)
 
-# <codecell>
+    ini.close()
+    his.close()
+
+
+def add_bio(ini, his, t):
+
+    bio_names = ['NO3','NH4','chlorophyll','phytoplankton','zooplankton',
+                 'LdetritusN','SdetritusN',
+                 'oxygen','PO4','LdetritusP','SdetritusP']
+    ini.createDimension('bio_tracer', len(bio_names))
+    bio = {}
+    for name in bio_names:
+        bio[name] = ini.createVariable(name, dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
+        bio[name].units = 'milimole meter-3'
+        bio[name][:,:,:,:] = his.variables[name][t,:,:,:]
+        bio[name].time = 'ocean_time'
+    return ini
+
 
 if __name__ == '__main__':
 
-    hisfile = '/home/okada/Dropbox/Data/ob500_his_0008.nc'
-    inifile = '/home/okada/Dropbox/Data/ob500_his2ini.nc'
+    hisfile = '/Users/teruhisa/Dropbox/Data/ob500_his_0008.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_his2ini.nc'
     dstart = datetime.datetime(2012, 8, 1, 0, 0, 0)
-    his2ini(hisfile, inifile, dstart)
+    make_his2ini(hisfile, inifile, dstart)

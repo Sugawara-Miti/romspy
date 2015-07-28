@@ -11,6 +11,7 @@ from numpy import dtype
 import datetime
 import pandas as pd
 
+
 def make_obs_file(ncfile, csvfile, stafile):
 
     print 'ncfile:', ncfile
@@ -18,7 +19,8 @@ def make_obs_file(ncfile, csvfile, stafile):
     print 'stafile:', stafile
     print 'numpy version:', np.__version__, '(> 1.9.0)'
 
-    tunit = 'hours since 1968-05-22 00:00:00'
+    tunit_GMT = 'hours since 1968-05-23 00:00:00 GMT'
+    tunit_JST = 'hours since 1968-05-23 09:00:00 GMT'
     state_variable = 19
 
     df = pd.read_csv(csvfile, parse_dates=True, index_col='datetime')
@@ -31,24 +33,24 @@ def make_obs_file(ncfile, csvfile, stafile):
     """
 
     df['error'] = 0.0
-    df.loc[df.type==6, "error"] = 0.5   #temp
-    df.loc[df.type==7, "error"] = 0.5   #salt
-    df.loc[df.type==10, "error"] = 1.0  #chlo
-    df.loc[df.type==15, "error"] = 10.0  #oxygen
+    df.loc[df.type==6, "error"] = 0.5    # temp
+    df.loc[df.type==7, "error"] = 0.5    # salt
+    df.loc[df.type==10, "error"] = 1.0   # chlo
+    df.loc[df.type==15, "error"] = 10.0  # oxygen
 
     df['xgrid'] = 0
     df['ygrid'] = 0
     df['lon'] = 0.0
     df['lat'] = 0.0
     sta = pd.read_csv(stafile, index_col='station')
-    for i in range(1,14):
+    for i in xrange(1,14):
         df.ix[df.station==i, "xgrid"] = sta.xgrid[i]
         df.loc[df.station==i, "ygrid"] = sta.xgrid[i]
         df.loc[df.station==i, "lat"] = sta.lat[i]
         df.loc[df.station==i, "lon"] = sta.lon[i]
 
     time = [ts.to_datetime() for ts in df.index.tolist()]
-    time_out = netCDF4.date2num(time, tunit)
+    time_out = netCDF4.date2num(time, tunit_JST)
     survey_out, nobs_out = np.unique(time_out, return_counts=True)
 
     station_out = df.station.tolist()
@@ -87,7 +89,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     survey_time = nc.createVariable('survey_time', dtype('double').char, ('survey',))
     survey_time.long_name = 'survey time'
-    survey_time.units = tunit
+    survey_time.units = tunit_GMT
     survey_time.calendar = 'gregorian'
 
     obs_variance = nc.createVariable('obs_variance', dtype('double').char, ('state_variable',))
@@ -95,7 +97,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     obs_type = nc.createVariable('obs_type', dtype('int32').char, ('datum',))
     obs_type.long_name = 'model state variable associated with observation'
-    obs_type.flag_values = [1,2,3,4,5,6,7,8,9,10,11]
+    obs_type.flag_values = [i + 1 for i in range(16)]
     obs_type.flag_meanings = 'zeta ubar vbar u v temperature salinity NO3 phytoplankton zooplankton detritus'
 
     obs_provenance = nc.createVariable('obs_provenance', dtype('int32').char, ('datum',))
@@ -119,7 +121,7 @@ def make_obs_file(ncfile, csvfile, stafile):
     obs_value = nc.createVariable('obs_value', dtype('double').char, ('datum',))
 
     obs_time.long_name  = 'time of observation'
-    obs_time.units      = tunit
+    obs_time.units      = tunit_GMT
     obs_time.calendar   = 'gregorian'
     obs_depth.long_name = 'depth of observation'
     obs_depth.units     = 'meter'
@@ -132,7 +134,7 @@ def make_obs_file(ncfile, csvfile, stafile):
     obs_error.long_name = 'observation error covariance'
     obs_value.long_name = 'observation value'
 
-    spherical[:] = 0
+    spherical[:] = 1
     Nobs[:] = nobs_out
     survey_time[:] = survey_out
     obs_variance[:] = 0
@@ -156,9 +158,10 @@ def make_obs_file(ncfile, csvfile, stafile):
     nc.close()
     print 'Finish!'
 
+
 if __name__ == '__main__':
 
-    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_obweb_2012.nc'
+    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-1.nc'
     inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
     stafile = '/Users/teruhisa/Dropbox/Data/ob500_stations.csv'
     make_obs_file(outfile, inpfile, stafile)

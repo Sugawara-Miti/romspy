@@ -10,9 +10,10 @@ import datetime
 import netCDF4
 import numpy as np
 from numpy import dtype
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 import pandas as pd
 import itertools
+
 
 def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     nc   = netCDF4.Dataset(grdfile, 'r')
@@ -23,12 +24,14 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     h    = nc.variables['h'][:,:]
     nc.close()
 
-    Cs_w_out  = [-1.0,-0.85995970425573898,-0.73930480862785297,-0.63531548401717497,-0.54564758027872295,-0.46827978387540298,-0.40146805298528299,-0.34370630292862198,-0.29369245567696201,-0.25029908812485502,-0.21254801747113999,-0.179588250807868,-0.15067680185167201,-0.125161942384141,-0.10246851085149,-0.082084946946771098,-0.063551759905316196,-0.046451170563227499,-0.030397693687904299,-0.015029448285449901,0.0]
-    Cs_r_out  = [-0.927370400041031,-0.79738854970395501,-0.68538160680467097,-0.58882468628964602,-0.50554118089585998,-0.43365369559286598,-0.37154172693258403,-0.31780513330542598,-0.27123257264129702,-0.230774196071171,-0.19551798200381801,-0.16466917713521501,-0.137532380945393,-0.11349586982752299,-0.0920178074803049,-0.072614030715317204,-0.054847135344321701,-0.038316616118190899,-0.022649838449810701,-0.0074936384035539797]
-    time_out  = [netCDF4.date2num(datetime.datetime(2011,12,31,15,0,0),
-                 'seconds since 1968-05-23 00:00:00 GMT')]
-    s_w_out   = [-1.0 + float(k)/kmax for k in range(kmax+1)]
-    s_rho_out = [(s_w_out[k] + s_w_out[k+1])/2 for k in range(kmax)]
+    """Cs_w_out  = [-1.0,-0.85995970425573898,-0.73930480862785297,-0.63531548401717497,-0.54564758027872295,-0.46827978387540298,-0.40146805298528299,-0.34370630292862198,-0.29369245567696201,-0.25029908812485502,-0.21254801747113999,-0.179588250807868,-0.15067680185167201,-0.125161942384141,-0.10246851085149,-0.082084946946771098,-0.063551759905316196,-0.046451170563227499,-0.030397693687904299,-0.015029448285449901,0.0]
+    #Cs_r_out  = [-0.927370400041031,-0.79738854970395501,-0.68538160680467097,-0.58882468628964602,-0.50554118089585998,-0.43365369559286598,-0.37154172693258403,-0.31780513330542598,-0.27123257264129702,-0.230774196071171,-0.19551798200381801,-0.16466917713521501,-0.137532380945393,-0.11349586982752299,-0.0920178074803049,-0.072614030715317204,-0.054847135344321701,-0.038316616118190899,-0.022649838449810701,-0.0074936384035539797]
+    #s_w_out   = [-1.0 + float(k)/kmax for k in range(kmax+1)]
+    #s_rho_out = [(s_w_out[k] + s_w_out[k+1])/2 for k in range(kmax)]"""
+    dstart = datetime.datetime(2012,1,1,0,0,0)
+    tunit_GMT = 'seconds since 1968-05-23 00:00:00 GMT'
+    tunit_JST = 'seconds since 1968-05-23 09:00:00 GMT'
+    time_out  = [netCDF4.date2num(dstart, tunit_JST)]
 
     nc = netCDF4.Dataset(inifile, 'w', format='NETCDF3_CLASSIC')
     nc.createDimension('xi_rho', imax)
@@ -45,15 +48,15 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     # nc.createDimension('boundary',   4)
     # nc.createDimension('IorJ',       max(imax,jmax))
 
-    spherical = nc.createVariable('spherical', dtype('int32').char)
-    theta_s   = nc.createVariable('theta_s', dtype('double').char)
-    theta_b   = nc.createVariable('theta_b', dtype('double').char)
-    Tcline    = nc.createVariable('Tcline', dtype('double').char)
-    hc        = nc.createVariable('hc', dtype('double').char)
-    s_rho     = nc.createVariable('s_rho', dtype('double').char, ('s_rho',))
-    s_w       = nc.createVariable('s_w', dtype('double').char, ('s_w',))
-    Cs_r      = nc.createVariable('Cs_r', dtype('double').char, ('s_rho',))
-    Cs_w      = nc.createVariable('Cs_w', dtype('double').char, ('s_w',))
+    """spherical = nc.createVariable('spherical', dtype('int32').char)
+    #theta_s   = nc.createVariable('theta_s', dtype('double').char)
+    #theta_b   = nc.createVariable('theta_b', dtype('double').char)
+    #Tcline    = nc.createVariable('Tcline', dtype('double').char)
+    #hc        = nc.createVariable('hc', dtype('double').char)
+    #s_rho     = nc.createVariable('s_rho', dtype('double').char, ('s_rho',))
+    #s_w       = nc.createVariable('s_w', dtype('double').char, ('s_w',))
+    #Cs_r      = nc.createVariable('Cs_r', dtype('double').char, ('s_rho',))
+    #Cs_w      = nc.createVariable('Cs_w', dtype('double').char, ('s_w',))"""
 
     time = nc.createVariable('ocean_time', dtype('double').char, ('ocean_time',))
     zeta = nc.createVariable('zeta', dtype('float32').char, ('ocean_time', 'eta_rho', 'xi_rho'))
@@ -64,7 +67,7 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     temp = nc.createVariable('temp', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
     salt = nc.createVariable('salt', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
 
-    spherical.flag_values = [0, 1]
+    """spherical.flag_values = [0, 1]
     theta_s.units   = 'nondimensional'
     theta_b.units   = 'nondimensional'
     Tcline.units    = 'meter'
@@ -72,9 +75,9 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     s_rho.units     = 'nondimensional'
     s_w.units       = 'nondimensional'
     Cs_r.units      = 'nondimensional'
-    Cs_w.units      = 'nondimensional'
+    Cs_w.units      = 'nondimensional'"""
 
-    time.units = 'seconds since 1968-05-23 00:00:00 GMT'
+    time.units = tunit_GMT
     zeta.units = 'meter'
     ubar.units = 'meter second-1'
     vbar.units = 'meter second-1'
@@ -83,22 +86,22 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     temp.units = 'Celsius'
     salt.units = 'PSU'
 
-    spherical[:] = 1
-    theta_s[:]   = 3
-    theta_b[:]   = 0
-    Tcline[:]    = 0.5
-    hc[:]        = 0.5
-    s_rho[:]     = s_rho_out
-    s_w[:]       = s_w_out
-    Cs_r[:]      = Cs_r_out
-    Cs_w[:]      = Cs_w_out
+    """spherical[:] = 1
+    theta_s[:]      = 3
+    theta_b[:]      = 0
+    Tcline[:]       = 0.5
+    hc[:]           = 0.5
+    s_rho[:]       = s_rho_out
+    s_w[:]         = s_w_out
+    Cs_r[:]        = Cs_r_out
+    Cs_w[:]        = Cs_w_out"""
 
-    time[:]     = time_out
-    zeta[:,:,:] = 0.0
-    ubar[:,:,:] = 0.0
-    vbar[:,:,:] = 0.0
-    u[:,:,:,:]  = 0.0
-    v[:,:,:,:]  = 0.0
+    time[:]       = time_out
+    zeta[:,:,:]   = 1.0
+    ubar[:,:,:]   = 0.0
+    vbar[:,:,:]   = 0.0
+    u[:,:,:,:]    = 0.0
+    v[:,:,:,:]    = 0.0
     temp[:,:,:,:] = 13.0
     salt[:,:,:,:] = 32.5
 
@@ -114,7 +117,7 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
         add_bio(nc, biofile)
 
     if bgcfile is not None:
-        _add_bgc(nc, Nbed, bgcfile)
+        add_bgc(nc, Nbed, bgcfile)
 
     nc.close()
 
@@ -158,6 +161,7 @@ def add_bio(nc, biofile):
         bio[name].time = 'ocean_time'
     return nc
 
+
 def add_bgc(nc, Nbed, bgcfile):
 
     """
@@ -189,7 +193,7 @@ def add_bgc(nc, Nbed, bgcfile):
     nc.createDimension('bgc_tracer', len(bgc_names))
     bgc = {}
     for name in bgc_names:
-        bgc[name] = nc.createVariable( 'bgc_'+name, dtype('float32').char, ('ocean_time', 'Nbed', 'eta_rho', 'xi_rho'))
+        bgc[name] = nc.createVariable('bgc_'+name, dtype('float32').char, ('ocean_time', 'Nbed', 'eta_rho', 'xi_rho'))
     for name in bgc_names:
         bgc[name].units = 'milimole meter-3'
     for name in bgc_names:
@@ -200,7 +204,7 @@ def add_bgc(nc, Nbed, bgcfile):
 
 if __name__ == '__main__':
 
-    grdfile = '/Users/teruhisa/Dropbox/Data/OB500/ob500_grd-v5.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/OB500/ob500_ini_fennelP-1.nc'
+    grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-6.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-2.nc'
     #bgcfile = 'rst{}.csv'
     make_ini_file(grdfile, inifile, biofile=0)
