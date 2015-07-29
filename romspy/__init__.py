@@ -17,3 +17,5 @@ from hplot_stations import hplot_stations
 from hplot_values import hplot_values
 
 from tview_obs import tview_obs
+
+import profiles

@@ -63,7 +63,6 @@ def plot_sta(vname, station, nc, t, depth, ax, label):
     c['detritus'] = 'm'
 
     ax.plot(var[t,station-1,:]*cff, depth[station-1,:], line, c=c[vname], label=label)
-
     # ax.tick_params(labelleft='off')
     ax.set_ylim(-14,0)
     ax.set_title('Sta.{}'.format(station))
@@ -76,7 +75,6 @@ def read_obs(obsfile, pdt):
 
     nc = netCDF4.Dataset(obsfile, 'r')
     ptime = netCDF4.date2num(pdt, hour_JST)
-
     obs_time = nc.variables['obs_time'][:]
 
     print netCDF4.num2date(obs_time[0], hour_JST), 0
@@ -88,7 +86,6 @@ def read_obs(obsfile, pdt):
     obs_type = nc.variables['obs_type'][t[0]:t[-1]]
     obs_depth = nc.variables['obs_depth'][t[0]:t[-1]]
     obs_value = nc.variables['obs_value'][t[0]:t[-1]]
-
     df = pd.DataFrame(data={'station':obs_station, 'depth':obs_depth, 'type':obs_type, 'value':obs_value})
     return df
 
@@ -103,6 +100,10 @@ def plot_obs(vname, station, obs, ax):
     elif vname == 'phytoplankton':
         vid = 10
         cff = 1.0/0.2515/2.18
+    elif vname == 'chlorophyll':
+        vid = 10
+    elif vname == 'oxygen':
+        vid = 15
     else:
         return
 
@@ -156,11 +157,11 @@ def fennelP(pdt, station, free=None, assi=None, obs=None, png=None):
     ax[0].tick_params(labelleft='on')
     ax[0].set_xlim(23,33)
     ax[1].set_xlim(15,33)
-    # ax[2].set_xlim(0,20)
-    # ax[3].set_xlim(0,0.5)
-    # ax[4].set_xlim(0,0.5)
-    # ax[5].set_xlim(0,0.5)
-    # ax[6].set_xlim(0,2.5)
+    ax[2].set_xlim(0,20.0)
+    ax[3].set_xlim(0,20.0)
+    ax[4].set_xlim(0,2.0)
+    ax[5].set_xlim(0,0.2)
+    ax[6].set_xlim(0,300.0)
 
     strtime = pdt.strftime('%Y%m%d_%H%M')
     fig.savefig(png.format(station, strtime), bbox_inches='tight', dpi=300)
@@ -168,8 +169,8 @@ def fennelP(pdt, station, free=None, assi=None, obs=None, png=None):
 
 if __name__ == '__main__':
 
-    pdt = dt.datetime(2012,8,1,0)
-    station = 4
+    pdt = dt.datetime(2012,2,24,0)
+    station = 3
     free = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL/ob500_sta.nc'
     obs = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-1.nc'
     png = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL/profiles_{}_{}.png'
