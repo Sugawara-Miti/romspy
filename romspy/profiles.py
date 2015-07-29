@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import datetime as dt
 import pandas as pd
 
+import romspy
+
 sec_JST = 'seconds since 1968-05-23 09:00:00 GMT'
 hour_JST = 'hours since 1968-05-23 09:00:00 GMT'
 
@@ -81,35 +83,33 @@ def read_obs(obsfile, pdt):
     print pdt, ptime
     print netCDF4.num2date(obs_time[-1], hour_JST), len(obs_time)
 
-    t = np.where(obs_time == ptime)[0]
-    obs_station = nc.variables['obs_station'][t[0]:t[-1]]
-    obs_type = nc.variables['obs_type'][t[0]:t[-1]]
-    obs_depth = nc.variables['obs_depth'][t[0]:t[-1]]
-    obs_value = nc.variables['obs_value'][t[0]:t[-1]]
+    index = np.where(obs_time == ptime)[0]
+    obs_station = nc.variables['obs_station'][index]
+    obs_type = nc.variables['obs_type'][index]
+    obs_depth = nc.variables['obs_depth'][index]
+    obs_value = nc.variables['obs_value'][index]
     df = pd.DataFrame(data={'station':obs_station, 'depth':obs_depth, 'type':obs_type, 'value':obs_value})
     return df
 
 
-def plot_obs(vname, station, obs, ax):
+def plot_obs(varname, station, obs, ax):
 
-    cff = 1.0
-    if vname == 'temp': 
-        vid = 6
-    elif vname == 'salt': 
-        vid = 7
-    elif vname == 'phytoplankton':
-        vid = 10
-        cff = 1.0/0.2515/2.18
-    elif vname == 'chlorophyll':
-        vid = 10
-    elif vname == 'oxygen':
-        vid = 15
+    varid = {'temp':6, 'salt':7, 'chlorophyll':10, 'oxygen':15}
+
+    obs = obs[obs.station == station]
+    if varname in varid.keys():
+        var = obs[obs.type == varid[varname]]
     else:
         return
+    if varname == 'oxygen':
+        T = obs[obs.type == varid['temp']]
+        S = obs[obs.type == varid['salt']]
+        T = np.asarray(T.value)
+        S = np.asarray(S.value)
+        O2p = np.asarray(var.value)
+        var.value = O2p * romspy.O2_saturation(T, S) / 100.0
 
-    var = obs[obs.station == station]
-    var = var[var.type == vid]
-    ax.plot(var.value*cff, var.depth, 'o', mec='k', mfc='w', mew=1, label='Obs')
+    ax.plot(var.value, var.depth, 'o', mec='k', mfc='w', mew=1, label='Obs')
 
 
 def fennelP(pdt, station, free=None, assi=None, obs=None, png=None):
@@ -161,10 +161,13 @@ def fennelP(pdt, station, free=None, assi=None, obs=None, png=None):
     ax[3].set_xlim(0,20.0)
     ax[4].set_xlim(0,2.0)
     ax[5].set_xlim(0,0.2)
-    ax[6].set_xlim(0,300.0)
+    ax[6].set_xlim(0,500.0)
 
-    strtime = pdt.strftime('%Y%m%d_%H%M')
-    fig.savefig(png.format(station, strtime), bbox_inches='tight', dpi=300)
+    if png is not None:
+        strtime = pdt.strftime('%Y%m%d_%H%M')
+        fig.savefig(png.format(station, strtime), bbox_inches='tight', dpi=300)
+    else:
+        return ax
 
 
 if __name__ == '__main__':
