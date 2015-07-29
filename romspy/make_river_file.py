@@ -160,24 +160,24 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
         annu_out['river_'+name] = np.ndarray(shape=[td_a, s_rho, n_river])
     for i, name in enumerate(river_names):
         if name == 'yodo1' or name == 'yodo2':
-            annu_out['river_NH4'][:,:,i]  = 8.10
-            annu_out['river_NO3'][:,:,i]  = 41.4
-            annu_out['river_SDeN'][:,:,i] = 28.0*10.0/34.0
-            annu_out['river_PO4'][:,:,i]  = 3.07
-            annu_out['river_SDeP'][:,:,i] = 1.4*38.0/63.0
+            annu_out['river_NH4'][:,:,i]  = 0.5 /14.01*1000.0  # 8.10
+            annu_out['river_NO3'][:,:,i]  = 1.0 /14.01*1000.0  # 41.4
+            annu_out['river_SDeN'][:,:,i] = 1.0 /14.01*1000.0  # 28.0*10.0/34.0
+            annu_out['river_PO4'][:,:,i]  = 0.1 /30.97*1000.0  # 3.07
+            annu_out['river_SDeP'][:,:,i] = 0.1 /30.97*1000.0
         elif name == 'yamato':
-            annu_out['river_NH4'][:,:,i]  = 9.0
-            annu_out['river_NO3'][:,:,i]  = 214.8
-            annu_out['river_SDeN'][:,:,i] = 28.0*10.0/34.0
-            annu_out['river_PO4'][:,:,i]  = 12.07
-            annu_out['river_SDeP'][:,:,i] = 2.7*38.0/63.0
+            annu_out['river_NH4'][:,:,i]  = 0.5 /14.01*1000.0  # 9.0
+            annu_out['river_NO3'][:,:,i]  = 2.0 /14.01*1000.0  # 214.8
+            annu_out['river_SDeN'][:,:,i] = 1.0 /14.01*1000.0  # 28.0*10.0/34.0
+            annu_out['river_PO4'][:,:,i]  = 0.4 /30.97*1000.0  # 12.07
+            annu_out['river_SDeP'][:,:,i] = 0.4 /30.97*1000.0
         else:
-            annu_out['river_NH4'][:,:,i]  = 8.5
-            annu_out['river_NO3'][:,:,i]  = 105.7
-            annu_out['river_SDeN'][:,:,i] = 28.0*10.0/34.0
-            annu_out['river_PO4'][:,:,i]  = 6.1
-            annu_out['river_SDeP'][:,:,i] = 2.0*38.0/63.0
-    annu_out['river_Oxyg'][:,:,:] = 312.5
+            annu_out['river_NH4'][:,:,i]  = 0.5 /14.01*1000.0  # 8.5
+            annu_out['river_NO3'][:,:,i]  = 1.5 /14.01*1000.0  # 105.7
+            annu_out['river_SDeN'][:,:,i] = 1.0 /14.01*1000.0  # 28.0*10.0/34.0
+            annu_out['river_PO4'][:,:,i]  = 0.2 /30.97*1000.0  # 6.1
+            annu_out['river_SDeP'][:,:,i] = 0.2 /30.97*1000.0
+    annu_out['river_Oxyg'][:,:,:] = 8.0 /32.0*1000.0  # 312.5
     """
     dail_out['river_chlorophyll']   = np.ndarray(shape=[td_d, s_rho, n_river])
     dail_out['river_phytoplankton'] = np.ndarray(shape=[td_d, s_rho, n_river])
@@ -258,7 +258,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
 if __name__ == '__main__':
 
-    ncname = '/Users/teruhisa/Dropbox/Data/ob500_river_2012_fennelP-2.nc'
+    ncname = '/Users/teruhisa/Dropbox/Data/ob500_river_2012_fennelP-3.nc'
     metafile = '/Users/teruhisa/Dropbox/Data/river/meta34.csv'
     rainfile = '/Users/teruhisa/Dropbox/Data/river/rain_2012.csv'
     yodofile = '/Users/teruhisa/Dropbox/Data/river/yodo_2012.csv'
