@@ -77,7 +77,6 @@ if __name__ == '__main__':
                's':'/Users/teruhisa/Dropbox/Data/wq_sumoto_2012.csv'}
     biofiles = {'w':'/Users/teruhisa/Dropbox/Data/fennel_w_linear.csv',
                 's':'/Users/teruhisa/Dropbox/Data/fennel_s_linear.csv'}
-    # ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_fennel_2012_linear.nc'
-    # make_bry_file(dims, dates, zetafiles, wqfiles, biofiles, ncfile)
     ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_2012-1.nc'
-    make_bry_file(ncfile, dims, dates, zetafiles, wqfiles)
+
+    make_bry_file(ncfile, dims, dates, zetafiles, wqfiles)  # biofiles
