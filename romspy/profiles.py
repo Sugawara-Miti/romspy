@@ -8,8 +8,8 @@ import pandas as pd
 
 import romspy
 
-sec_JST = 'seconds since 1968-05-23 09:00:00 GMT'
-hour_JST = 'hours since 1968-05-23 09:00:00 GMT'
+sta_JST = 'seconds since 1968-05-23 09:00:00 GMT'
+obs_JST = 'days since 1968-05-23 09:00:00 GMT'
 
 
 def read_sta(filename, pdt):
@@ -23,18 +23,17 @@ def read_sta(filename, pdt):
     Cs_r = nc.variables['Cs_r'][:]
     ocean_time = nc.variables['ocean_time'][:]
 
-    ptime = netCDF4.date2num(pdt, sec_JST)
+    ptime = netCDF4.date2num(pdt, sta_JST)
     t = np.where(ocean_time == ptime)[0][0]
 
-    print netCDF4.num2date(ocean_time[0], sec_JST), 0
-    print pdt, t
-    print netCDF4.num2date(ocean_time[-1], sec_JST), len(ocean_time)
+    print netCDF4.num2date(ocean_time[0], sta_JST), '-', netCDF4.num2date(ocean_time[-1], sta_JST)
 
     zeta = nc.variables['zeta'][t,:]
     depth = np.ndarray(shape=[station,s_rho])
     for n in range(s_rho):
         for sta in range(station):
             depth[sta, n] = (h[sta]+zeta[sta]) * Cs_r[n]
+
     return nc, t, depth
 
 
@@ -76,12 +75,10 @@ def read_obs(obsfile, pdt):
     print obsfile
 
     nc = netCDF4.Dataset(obsfile, 'r')
-    ptime = netCDF4.date2num(pdt, hour_JST)
+    ptime = netCDF4.date2num(pdt, obs_JST)
     obs_time = nc.variables['obs_time'][:]
 
-    print netCDF4.num2date(obs_time[0], hour_JST), 0
-    print pdt, ptime
-    print netCDF4.num2date(obs_time[-1], hour_JST), len(obs_time)
+    print netCDF4.num2date(obs_time[0], obs_JST), '-', netCDF4.num2date(obs_time[-1], obs_JST)
 
     index = np.where(obs_time == ptime)[0]
     obs_station = nc.variables['obs_station'][index]
@@ -89,6 +86,7 @@ def read_obs(obsfile, pdt):
     obs_depth = nc.variables['obs_depth'][index]
     obs_value = nc.variables['obs_value'][index]
     df = pd.DataFrame(data={'station':obs_station, 'depth':obs_depth, 'type':obs_type, 'value':obs_value})
+
     return df
 
 
@@ -177,4 +175,5 @@ if __name__ == '__main__':
     free = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL/ob500_sta.nc'
     obs = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-1.nc'
     png = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL/profiles_{}_{}.png'
+
     fennelP(pdt, station, free=free, obs=obs, png=png)
