@@ -19,8 +19,8 @@ def make_obs_file(ncfile, csvfile, stafile):
     print 'stafile:', stafile
     print 'numpy version:', np.__version__, '(> 1.9.0)'
 
-    tunit_GMT = 'hours since 1968-05-23 00:00:00 GMT'
-    tunit_JST = 'hours since 1968-05-23 09:00:00 GMT'
+    tunit_GMT = 'days since 1968-05-23 00:00:00 GMT'
+    tunit_JST = 'days since 1968-05-23 09:00:00 GMT'
     state_variable = 19
 
     df = pd.read_csv(csvfile, parse_dates=True, index_col='datetime')
@@ -161,7 +161,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
 if __name__ == '__main__':
 
-    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-1.nc'
+    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-2.nc'
     inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
-    stafile = '/Users/teruhisa/Dropbox/Data/ob500_stations.csv'
+    stafile = '/Users/teruhisa/Dropbox/Data/stations13.csv'
     make_obs_file(outfile, inpfile, stafile)
