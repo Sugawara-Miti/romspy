@@ -79,7 +79,7 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
         add_bio(nc, biofile)
 
     if bgcfile is not None:
-        add_bgc(nc, Nbed, bgcfile)
+        add_bgc(nc, Nbed, h, bgcfile)
 
     nc.close()
 
@@ -103,7 +103,7 @@ def add_bio(nc, biofile):
     bio_out["zooplankton"]   = bio_out["phytoplankton"]/2
     bio_out["LdetritusN"]    = 0.1 /14.01*1000.0
     bio_out["SdetritusN"]    = 0.1 /14.01*1000.0
-    bio_out["oxygen"]        = 200.0
+    bio_out["oxygen"]        = 400.0
     bio_out["PO4"]           = 0.1 /30.97*1000.0
     bio_out["LdetritusP"]    = bio_out["LdetritusN"]*PhyPN
     bio_out["SdetritusP"]    = bio_out["SdetritusN"]*PhyPN
@@ -121,7 +121,7 @@ def add_bio(nc, biofile):
     return nc
 
 
-def add_bgc(nc, Nbed, bgcfile):
+def add_bgc(nc, Nbed, h, bgcfile):
 
     """
     2015/05/01 okada  Read from rst file.
@@ -164,6 +164,6 @@ def add_bgc(nc, Nbed, bgcfile):
 if __name__ == '__main__':
 
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-3.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-4.nc'
     #bgcfile = 'rst{}.csv'
     make_ini_file(grdfile, inifile, biofile=0)
