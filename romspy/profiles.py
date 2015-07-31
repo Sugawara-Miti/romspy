@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import datetime as dt
 import pandas as pd
 
-from romspy import O2_saturation
+import romspy
 
 sta_JST = 'seconds since 1968-05-23 09:00:00 GMT'
 obs_JST = 'days since 1968-05-23 09:00:00 GMT'
@@ -104,7 +104,7 @@ def plot_obs(varname, station, obs, ax):
         T = np.asarray(T.value)
         S = np.asarray(S.value)
         O2p = np.asarray(var.value)
-        var.value = O2p * O2_saturation(T, S) / 100.0
+        var.value = O2p * romspy.O2_saturation(T, S) / 100.0
 
     ax.plot(var.value, var.depth, 'o', mec='k', mfc='w', mew=1, label='Obs')
 
@@ -163,9 +163,9 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
     #ax[3].set_xlim(0,20.0)
     #ax[4].set_xlim(0,2.0)
     #ax[5].set_xlim(0,0.2)
-    ax[3].set_xlim(0,2.0)
-    ax[4].set_xlim(0,2.0)
-    ax[5].set_xlim(0,2.0)
+    #ax[3].set_xlim(0,2.0)
+    #ax[4].set_xlim(0,2.0)
+    #ax[5].set_xlim(0,2.0)
     ax[6].set_xlim(0,500.0)
 
     # output
@@ -179,10 +179,10 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
 
 if __name__ == '__main__':
 
-    dtime = dt.datetime(2012,5,1,0)
-    station = 5
-    freefile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL02/ob500_sta.nc'
+    dtime = dt.datetime(2012,1,10,0)
+    station = 12
+    freefile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL03/ob500_sta.nc'
     obsfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-2.nc'
-    pngfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL02/profiles_{}_{}.png'
+    pngfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL03/profiles_{}_{}.png'
 
     fennelP(dtime, station, freefile=freefile, obsfile=obsfile, pngfile=pngfile)
