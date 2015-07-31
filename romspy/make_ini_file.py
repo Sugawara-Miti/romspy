@@ -96,15 +96,15 @@ def add_bio(nc, biofile):
                  'LdetritusN','SdetritusN',
                  'oxygen','PO4','LdetritusP','SdetritusP']
     bio_out = {}
-    bio_out["NO3"]           = 0.2 /14.01*1000.0
-    bio_out["NH4"]           = 0.02 /14.01*1000.0
+    bio_out["NO3"]           = 0.1 /14.01*1000.0
+    bio_out["NH4"]           = 0.01 /14.01*1000.0
     bio_out["chlorophyll"]   = 1.0
     bio_out["phytoplankton"] = 2.4
-    bio_out["zooplankton"]   = bio_out["phytoplankton"]/2
+    bio_out["zooplankton"]   = bio_out["phytoplankton"]/10.0
     bio_out["LdetritusN"]    = 0.1 /14.01*1000.0
     bio_out["SdetritusN"]    = 0.1 /14.01*1000.0
     bio_out["oxygen"]        = 400.0
-    bio_out["PO4"]           = 0.1 /30.97*1000.0
+    bio_out["PO4"]           = 0.01 /30.97*1000.0
     bio_out["LdetritusP"]    = bio_out["LdetritusN"]*PhyPN
     bio_out["SdetritusP"]    = bio_out["SdetritusN"]*PhyPN
 
@@ -164,6 +164,6 @@ def add_bgc(nc, Nbed, h, bgcfile):
 if __name__ == '__main__':
 
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-4.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-5.nc'
     #bgcfile = 'rst{}.csv'
     make_ini_file(grdfile, inifile, biofile=0)
