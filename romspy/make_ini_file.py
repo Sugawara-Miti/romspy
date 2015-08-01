@@ -90,23 +90,31 @@ def add_bio(nc, biofile):
     2015/05/01 okada  All value is 0, use biofile=0
     """
 
-    PhyPN   = 0.08    # [mole_P/mole_N]
+    Chl2C = 0.05   # okada (=1/20 gChl/gC)
+    PhyCN = 6.625  # (=106/16 molC/molN)
+    C = 12.01
+    N = 14.01
+    P = 30.97
+    O2 = 32.00
 
     bio_names = ['NO3','NH4','chlorophyll','phytoplankton','zooplankton',
                  'LdetritusN','SdetritusN',
                  'oxygen','PO4','LdetritusP','SdetritusP']
     bio_out = {}
-    bio_out["NO3"]           = 0.1 /14.01*1000.0
-    bio_out["NH4"]           = 0.01 /14.01*1000.0
     bio_out["chlorophyll"]   = 1.0
-    bio_out["phytoplankton"] = 2.4
-    bio_out["zooplankton"]   = bio_out["phytoplankton"]/10.0
-    bio_out["LdetritusN"]    = 0.1 /14.01*1000.0
-    bio_out["SdetritusN"]    = 0.1 /14.01*1000.0
+    bio_out["NO3"]           = 0.0233 / N * 1000.0
+    bio_out["NH4"]           = 0.0193 / N * 1000.0
+    bio_out["SdetritusN"]    = 0.0296 / N * 1000.0
+    bio_out["PO4"]           = 0.0135 / P * 1000.0
+    bio_out["SdetritusP"]    = 0.0080 / P * 1000.0
     bio_out["oxygen"]        = 400.0
-    bio_out["PO4"]           = 0.01 /30.97*1000.0
-    bio_out["LdetritusP"]    = bio_out["LdetritusN"]*PhyPN
-    bio_out["SdetritusP"]    = bio_out["SdetritusN"]*PhyPN
+
+    bio_out["phytoplankton"] = bio_out["chlorophyll"] / (Chl2C * PhyCN * C)
+    bio_out["zooplankton"]   = bio_out["phytoplankton"] * 0.1
+    bio_out["SdetritusN"]    = bio_out["SdetritusN"] / 2.0
+    bio_out["SdetritusP"]    = bio_out["SdetritusP"] / 2.0
+    bio_out["LdetritusN"]    = bio_out["SdetritusN"]
+    bio_out["LdetritusP"]    = bio_out["SdetritusP"]
 
     nc.createDimension('bio_tracer', len(bio_names))
     bio = {}
@@ -164,6 +172,6 @@ def add_bgc(nc, Nbed, h, bgcfile):
 if __name__ == '__main__':
 
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-5.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-6.nc'
     #bgcfile = 'rst{}.csv'
     make_ini_file(grdfile, inifile, biofile=0)
