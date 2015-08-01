@@ -15,7 +15,7 @@ bio_units = {'others':'millimole meter-3',
              'alkalinity':'milliequivalens meter-3'}
 
 
-def make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, biofiles=None):
+def make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, biofiles=None, bio=None):
 
     """
     use bio_fennel_linear()
@@ -27,8 +27,11 @@ def make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, biofiles=None):
     salt_out = bry_wq_csv(dims, 'salt', wqfiles, dates)
     if biofiles is not None:
         # bio_out, bio_index = bry_bio_fennel(dims, biofiles)
-        bio_out, bio_index = bry_bio_fennel_linear(dims, biofiles)   
+        bio_out, bio_index = bry_bio_fennel_linear(dims, biofiles)
         time_out = bry_time(dates, bio_index)
+    elif bio == 'fennelP':
+        bio_out, bio_dtime = bry_bio_fennelP(dims) 
+        time_out = bry_time(dates, bio_dtime)
     else:
         time_out = bry_time(dates)
 
@@ -57,15 +60,17 @@ def make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, biofiles=None):
     bry_write_3d(nc, 'temp', temp_out, 'time_daily', 'rho', 'Celsius')
     bry_write_3d(nc, 'salt', salt_out, 'time_daily', 'rho', 'PSU')
 
-    if biofiles is not None:
-        for name in bio_out.keys():
+    if (biofiles is not None) or (bio is not None):
+        for name in bio_out['w'].keys():
             units = bio_units[name] if name in bio_units else bio_units['others']
-            bry_write_3d(nc, name, bio_out[name], 'time_biology', 'rho', units)
+            bry_write_3d(nc, name, {d:bio_out[d][name] for d in ['w','s']}, 'time_biology', 'rho', units)
 
     nc.close()
 
 
 if __name__ == '__main__':
+
+    ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_2012_fennelP-1.nc'
 
     dims = {'xi':117, 'eta':124, 's':20}
     dates = ['2012-01-01', '2013-01-01']
@@ -73,10 +78,9 @@ if __name__ == '__main__':
                  '/Users/teruhisa/Dropbox/Data/zeta_hour/2012_Ei/zeta.dat',
                  '/Users/teruhisa/Dropbox/Data/zeta_hour/2012_Kainan/zeta.dat',
                  '/Users/teruhisa/Dropbox/Data/zeta_hour/2012_Takasago/zeta.dat']
-    wqfiles = {'w':'/Users/teruhisa/Dropbox/Data/wq_akashi_2012.csv',
-               's':'/Users/teruhisa/Dropbox/Data/wq_sumoto_2012.csv'}
-    biofiles = {'w':'/Users/teruhisa/Dropbox/Data/fennel_w_linear.csv',
-                's':'/Users/teruhisa/Dropbox/Data/fennel_s_linear.csv'}
-    ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_2012-1.nc'
+    wqfiles = {'w':'/Users/teruhisa/Dropbox/Data/bry_wq_akashi_2012.csv',
+               's':'/Users/teruhisa/Dropbox/Data/bry_wq_sumoto_2012.csv'}
+    #biofiles = {'w':'/Users/teruhisa/Dropbox/Data/fennel_w_linear.csv',
+    #            's':'/Users/teruhisa/Dropbox/Data/fennel_s_linear.csv'}
 
-    make_bry_file(ncfile, dims, dates, zetafiles, wqfiles)  # biofiles
+    make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, bio='fennelP')

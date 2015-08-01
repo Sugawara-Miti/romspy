@@ -19,7 +19,8 @@ def bry_time(dates=['2012-1-1', '2013-1-1'], bio_index=None):
     time_d = pd.date_range(dates[0], dates[1], freq='D').to_pydatetime()
     time_a = [time_d[0], time_d[-1]]
     if bio_index is not None:
-        time_b = bio_index.to_pydatetime()
+        #time_b = bio_index.to_pydatetime()
+        time_b = bio_index
     time_out = {}
     time_out['time_hourly']   = netCDF4.date2num(time_h, tunit_JST)
     time_out['time_daily']    = netCDF4.date2num(time_d, tunit_JST)
