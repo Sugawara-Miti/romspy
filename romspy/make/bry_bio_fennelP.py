@@ -29,54 +29,47 @@ def bry_bio_fennelP(dims):
     bio = {'w':{name:np.zeros(shape=[len(dtime), s_rho, eta_rho]) for name in bionames},
            's':{name:np.zeros(shape=[len(dtime), s_rho, xi_rho]) for name in bionames}}
 
-    bio['w']['NO3'][:,:,:]         = 0.0233
-    bio['s']['NO3'][:,:,:]         = 0.0326
+    bio['w']['NO3'][:,:,:]     = 0.0233
+    bio['s']['NO3'][:,:,:]     = 0.0326
+    bio['w']['NH4'][:,:,:]     = 0.0193
+    bio['s']['NH4'][:,:,:]     = 0.0104
+    bio['w']['SDeN'][:,:,:]    = 0.0296  # PON
+    bio['s']['SDeN'][:,:,:]    = 0.0276  # PON
+    bio['w']['chlo'][:,:,:]    = 2.40
+    bio['s']['chlo'][:,:,:]    = 0.788
+    bio['w']['PO4'][:,:,:]     = 0.0135
+    bio['s']['PO4'][:,:,:]     = 0.0123
+    bio['w']['SDeP'][:,:,:]    = 0.0080  # POP
+    bio['s']['SDeP'][:,:,:]    = 0.0044  # POP
+    bio['w']['H2S'][:,:,:]     = 0.0
+    bio['s']['H2S'][:,:,:]     = 0.0
 
-    bio['w']['NH4'][:,:,:]         = 0.0193
-    bio['s']['NH4'][:,:,:]         = 0.0104
-
-    bio['w']['chlo'][:,:,:] = 2.40
-    bio['s']['chlo'][:,:,:] = 0.788
-
-    bio['w']['SDeN'][:,:,:]  = 0.0296  # PON
-    bio['s']['SDeN'][:,:,:]  = 0.0276  # PON
-
-    bio['w']['PO4'][:,:,:]         = 0.0135
-    bio['s']['PO4'][:,:,:]         = 0.0123
-
-    bio['w']['SDeP'][:,:,:]  = 0.0080  # POP
-    bio['s']['SDeP'][:,:,:]  = 0.0044  # POP
-
-    bio['w']['H2S'][:,:,:]         = 0.0
-    bio['s']['H2S'][:,:,:]         = 0.0
-
-    bio['w']['oxygen'][0,:,:]      = 8.81
-    bio['w']['oxygen'][1,:,:]      = 9.40
-    bio['w']['oxygen'][2,:,:]      = 9.05
-    bio['w']['oxygen'][3,:,:]      = 8.6
-    bio['w']['oxygen'][4,:,:]      = 7.53
-    bio['w']['oxygen'][5,:,:]      = 6.52
-    bio['w']['oxygen'][6,:,:]      = 5.5
-    bio['w']['oxygen'][7,:,:]      = 5.45
-    bio['w']['oxygen'][8,:,:]      = 5.15
-    bio['w']['oxygen'][9,:,:]      = 6.44
-    bio['w']['oxygen'][10,:,:]     = 6.2
-    bio['w']['oxygen'][11,:,:]     = 7.51
-    bio['w']['oxygen'][12,:,:]     = 8.81
-
-    bio['s']['oxygen'][0,:,:]      = 8.81
-    bio['s']['oxygen'][1,:,:]      = 9.40
-    bio['s']['oxygen'][2,:,:]      = 9.05
-    bio['s']['oxygen'][3,:,:]      = 8.6
-    bio['s']['oxygen'][4,:,:]      = 7.53
-    bio['s']['oxygen'][5,:,:]      = 6.52
-    bio['s']['oxygen'][6,:,:]      = 5.5
-    bio['s']['oxygen'][7,:,:]      = 5.45
-    bio['s']['oxygen'][8,:,:]      = 5.15
-    bio['s']['oxygen'][9,:,:]      = 6.44
-    bio['s']['oxygen'][10,:,:]     = 6.2
-    bio['s']['oxygen'][11,:,:]     = 7.51
-    bio['s']['oxygen'][12,:,:]     = 8.81
+    bio['w']['oxygen'][0,:,:]  = 8.81
+    bio['w']['oxygen'][1,:,:]  = 9.40
+    bio['w']['oxygen'][2,:,:]  = 9.05
+    bio['w']['oxygen'][3,:,:]  = 8.6
+    bio['w']['oxygen'][4,:,:]  = 7.53
+    bio['w']['oxygen'][5,:,:]  = 6.52
+    bio['w']['oxygen'][6,:,:]  = 5.5
+    bio['w']['oxygen'][7,:,:]  = 5.45
+    bio['w']['oxygen'][8,:,:]  = 5.15
+    bio['w']['oxygen'][9,:,:]  = 6.44
+    bio['w']['oxygen'][10,:,:] = 6.2
+    bio['w']['oxygen'][11,:,:] = 7.51
+    bio['w']['oxygen'][12,:,:] = 8.81
+    bio['s']['oxygen'][0,:,:]  = 8.81
+    bio['s']['oxygen'][1,:,:]  = 9.40
+    bio['s']['oxygen'][2,:,:]  = 9.05
+    bio['s']['oxygen'][3,:,:]  = 8.6
+    bio['s']['oxygen'][4,:,:]  = 7.53
+    bio['s']['oxygen'][5,:,:]  = 6.52
+    bio['s']['oxygen'][6,:,:]  = 5.5
+    bio['s']['oxygen'][7,:,:]  = 5.45
+    bio['s']['oxygen'][8,:,:]  = 5.15
+    bio['s']['oxygen'][9,:,:]  = 6.44
+    bio['s']['oxygen'][10,:,:] = 6.2
+    bio['s']['oxygen'][11,:,:] = 7.51
+    bio['s']['oxygen'][12,:,:] = 8.81
 
     for name in bionames:
 
@@ -91,13 +84,13 @@ def bry_bio_fennelP(dims):
 
         # convert unit
         for direction in ['w','s']:
-            var = bio[direction][name]
+            var = bio[direction][name][:,:,:]
             if 'N' in name:
-                var = var[:,:,:] / N * 1000.0
+                bio[direction][name] = var / N * 1000.0
             elif 'P' in name:
-                var = var[:,:,:] / P * 1000.0
-            elif 'oxygen' in name:
-                var = var[:,:,:] / O2 * 1000.0
+                bio[direction][name] = var / P * 1000.0
+            elif name == 'oxygen':
+                bio[direction][name] = var / O2 * 1000.0
 
     # copy variables
     for direction in ['w','s']:
@@ -114,6 +107,6 @@ def bry_bio_fennelP(dims):
 
 if __name__ == '__main__':
 
-    dims = {'xi':1, 'eta':2, 's':20}
+    dims = {'xi':2, 'eta':2, 's':20}
     bio, time = bry_bio_fennelP(dims)
-    print bio['w']['NO3']
+    print bio['w']['oxygen']
