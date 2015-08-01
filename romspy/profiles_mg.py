@@ -164,13 +164,13 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
     ax[6].set_xlabel('Oxygen'+mgO2)
 
     ax[0].tick_params(labelleft='on')
-    ax[0].set_xlim(10,30)
-    ax[1].set_xlim(15,33)
+    ax[0].set_xlim(5,30)
+    ax[1].set_xlim(15,35)
     ax[2].set_xlim(0,20.0)
     ax[3].set_xlim(0,0.02)
     ax[4].set_xlim(0,0.02)
     ax[5].set_xlim(0,0.02)
-    ax[6].set_xlim(0,15.0)
+    ax[6].set_xlim(0,20.0)
 
     # output
 
@@ -189,4 +189,4 @@ if __name__ == '__main__':
     obsfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-2.nc'
     pngfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL03/profiles_{}_{}.png'
 
-    fennelP_mg(dtime, station, freefile=freefile, obsfile=obsfile, pngfile=pngfile)
+    fennelP(dtime, station, freefile=freefile, obsfile=obsfile, pngfile=pngfile)
