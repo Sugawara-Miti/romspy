@@ -8,8 +8,16 @@ import pandas as pd
 
 import romspy
 
+Chl2C_m = 0.0535  # [mg_Chl/mg_C]
+PhyCN   = 6.625   # [mole_C/mole_N]
+C       = 12.01   # [mole_C/g_C]
+
 sta_JST = 'seconds since 1968-05-23 09:00:00 GMT'
 obs_JST = 'days since 1968-05-23 09:00:00 GMT'
+
+molN = u' [mmol N m$^{-3}$]'
+molP = u' [mmol P m$^{-3}$]'
+molO2 = u' [mmol O2 m$^{-3}$]'
 
 
 def calculate_depth(nc, t, station):
@@ -24,11 +32,11 @@ def calculate_depth(nc, t, station):
     return depth
 
 
-def read_sta(stafile, dtime, station, varnames):
+def read_sta(stafile, dtime, station, varnames, tunit=sta_JST):
 
     nc = netCDF4.Dataset(stafile, 'r')
     ocean_time = nc.variables['ocean_time'][:]
-    time = netCDF4.date2num(dtime, sta_JST)
+    time = netCDF4.date2num(dtime, tunit)
     t = np.where(ocean_time == time)[0][0]
     var = {}
     for name in varnames:
@@ -40,12 +48,20 @@ def read_sta(stafile, dtime, station, varnames):
             LDeN = nc.variables['LdetritusN'][t,station-1,:]
             SDeN = nc.variables['SdetritusN'][t,station-1,:]
             var[name] = NH4 + NO3 + phyt + zoop + LDeN + SDeN
+        elif name == 'DIN':
+            NH4 = nc.variables['NH4'][t,station-1,:]
+            NO3 = nc.variables['NO3'][t,station-1,:]
+            var[name] = NH4 + NO3
+        elif name == 'DetritusN':
+            LDeN = nc.variables['LdetritusN'][t,station-1,:]
+            SDeN = nc.variables['SdetritusN'][t,station-1,:]
+            var[name] = LDeN + SDeN
         elif name == 'TP':
             PO4 = nc.variables['PO4'][t,station-1,:]
             LDeP = nc.variables['LdetritusP'][t,station-1,:]
             SDeP = nc.variables['SdetritusP'][t,station-1,:]
             var[name] = PO4 + LDeP + SDeP
-        elif name == 'PP':
+        elif name == 'DetritusP':
             LDeP = nc.variables['LdetritusP'][t,station-1,:]
             SDeP = nc.variables['SdetritusP'][t,station-1,:]
             var[name] = LDeP + SDeP
@@ -53,7 +69,7 @@ def read_sta(stafile, dtime, station, varnames):
             var[name] = nc.variables[name][t,station-1,:]
 
     print stafile
-    print netCDF4.num2date(ocean_time[0], sta_JST), '-', netCDF4.num2date(ocean_time[-1], sta_JST)
+    print netCDF4.num2date(ocean_time[0], tunit), '-', netCDF4.num2date(ocean_time[-1], tunit)
 
     return var, calculate_depth(nc, t, station)
 
@@ -81,12 +97,10 @@ def read_obs(obsfile, dtime, station):
 
 def plot_sta(varname, var, depth, ax, c, label):
 
-    if varname == 'phytoplankton':
-        cff = 1.0/0.2515/2.18
-    else:
-        cff = 1.0
+    v = var[varname]
+
     line = {'Free': '--', 'Assi': '-'}
-    ax.plot(var[varname]*cff, depth, line[label], c=c[varname], label=label)
+    ax.plot(v, depth, line[label], c=c[varname], label=label)
     # ax.tick_params(labelleft='off')
 
 
@@ -96,6 +110,9 @@ def plot_obs(varname, station, obs, ax):
 
     if varname in varid.keys():
         var = obs[obs.type == varid[varname]]
+    elif varname == 'phytoplankton':
+        var = obs[obs.type == varid['chlorophyll']]
+        var.value = var.value * 2.18 / (Chl2C_m * PhyCN * C)
     else:
         return
     if varname == 'oxygen':
@@ -113,12 +130,10 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
 
     #varnames = ['temp', 'salt', 'chlorophyll', 'NO3', 'NH4', 'PO4', 'oxygen']
     #varnames = ['temp', 'salt', 'chlorophyll', 'TN', 'TP', 'PP', 'oxygen']
-    varnames = ['temp', 'salt', 'chlorophyll', 'PO4', 'LdetritusP', 'SdetritusP', 'oxygen']
-    colors = ['c', 'k', 'g', 'r', 'b', 'm', 'c']
+    #varnames = ['temp', 'salt', 'chlorophyll', 'PO4', 'LdetritusP', 'SdetritusP', 'oxygen']
+    varnames = ['temp', 'salt', 'chlorophyll', 'DIN', 'DetritusN', 'PO4', 'DetritusP', 'oxygen']
+    colors = ['c', 'k', 'g', 'r', 'r', 'm', 'm', 'b']
     c = {name:c for name, c in zip(varnames, colors)}
-    molN = u' [mmol N m$^{-3}$]'
-    molP = u' [mmol P m$^{-3}$]'
-    molO2 = u' [mmol O2 m$^{-3}$]'
 
     # read
 
@@ -139,7 +154,6 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
             plot_sta(varname, avar, adepth, ax[i], c, 'Assi')
         if obsfile is not None:
             plot_obs(varname, station, obs, ax[i])
-        ax[i].set_title('Sta.{}'.format(station))
         ax[i].grid()
         ax[i].set_ylim(-14,0)
 
@@ -148,30 +162,77 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
     ax[0].set_xlabel('Temperature [degC]')
     ax[1].set_xlabel('Salinity')
     ax[2].set_xlabel('Chlorophyll [mg m$^{-3}$]')
-    #ax[3].set_xlabel('NO3'+molN)
-    #ax[4].set_xlabel('NH4'+molN)
-    #ax[5].set_xlabel('PO4'+molP)
-    ax[3].set_xlabel('PO4'+molN)
-    ax[4].set_xlabel('LDeP'+molP)
-    ax[5].set_xlabel('SDeP'+molP)
-    ax[6].set_xlabel('Oxygen'+molO2)
+    ax[3].set_xlabel('DIN'+molN)
+    ax[4].set_xlabel('DetritusN'+molN)
+    ax[5].set_xlabel('PO4'+molP)
+    ax[6].set_xlabel('DetritusP'+molP)
+    ax[7].set_xlabel('Oxygen'+molO2)
 
     ax[0].tick_params(labelleft='on')
-    #ax[0].set_xlim(23,33)
+    ax[0].set_xlim(15,33)
     ax[1].set_xlim(15,33)
-    ax[2].set_xlim(0,20.0)
-    #ax[3].set_xlim(0,20.0)
-    #ax[4].set_xlim(0,2.0)
-    #ax[5].set_xlim(0,0.2)
-    #ax[3].set_xlim(0,2.0)
-    #ax[4].set_xlim(0,2.0)
-    #ax[5].set_xlim(0,2.0)
-    ax[6].set_xlim(0,500.0)
+    ax[2].set_xlim(0,10.0)
+    ax[3].set_xlim(0,5.0)
+    ax[4].set_xlim(0,5.0)
+    ax[5].set_xlim(0,1.0)
+    ax[6].set_xlim(0,1.0)
+    ax[7].set_xlim(0,500.0)
 
     # output
 
+    fig.suptitle('Sta.'+str(station)+dtime.strftime(' %Y-%m-%d %H:%M'), fontsize=10)
     if pngfile is not None:
         strtime = dtime.strftime('%m%d%H')
+        fig.savefig(pngfile.format(station, strtime), bbox_inches='tight', dpi=300)
+    else:
+        return ax
+
+
+def npzd(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=None, tunit=sta_JST):
+
+    varnames = ['temp', 'salt', 'phytoplankton', 'NO3', 'zooplankton', 'detritus']
+    colors = ['c', 'k', 'g', 'r', 'b', 'm', 'c']
+    c = {name:c for name, c in zip(varnames, colors)}
+
+    if freefile is not None:
+        fvar, fdepth = read_sta(freefile, dtime, station, varnames, tunit)
+    if assifile is not None:
+        avar, adepth = read_sta(assifile, dtime, station, varnames, tunit)
+    if obsfile is not None:
+        obs = read_obs(obsfile, dtime, station)
+
+    fig, ax = plt.subplots(1, len(varnames), figsize=[15,3])
+    for i, name in enumerate(varnames):
+        if name == 'NO3':
+            fvar[name] = fvar[name] * 10.0
+        if freefile is not None:
+            plot_sta(name, fvar, fdepth, ax[i], c, 'Free')
+        if assifile is not None:
+            plot_sta(name, avar, adepth, ax[i], c, 'Assi')
+        if obsfile is not None:
+            plot_obs(name, station, obs, ax[i])
+        ax[i].grid()
+        ax[i].set_ylim(-14,0)
+
+    ax[0].tick_params(labelleft='on')
+
+    ax[0].set_xlabel('Temperature [degC]')
+    ax[1].set_xlabel('Salinity')
+    ax[2].set_xlabel('Phytoplankton'+molN)
+    ax[3].set_xlabel('NO3'+molN)
+    ax[5].set_xlabel('Detritus'+molN)
+    ax[4].set_xlabel('Zooplankton'+molN)
+
+    ax[0].set_xlim(23,33)
+    ax[1].set_xlim(23,33)
+    ax[2].set_xlim(0,6.0)
+    ax[3].set_xlim(0,6.0)
+    ax[4].set_xlim(0,6.0)
+    ax[5].set_xlim(0,6.0)
+
+    fig.suptitle('Sta.'+str(station)+dtime.strftime(' %Y-%m-%d %H:%M'))
+    if pngfile is not None:
+        strtime = dtime.strftime('%Y%m%d_%H%M')
         fig.savefig(pngfile.format(station, strtime), bbox_inches='tight', dpi=300)
     else:
         return ax
@@ -183,6 +244,7 @@ if __name__ == '__main__':
     station = 12
     freefile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL03/ob500_sta.nc'
     obsfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-2.nc'
-    pngfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL03/profiles_{}_{}.png'
+    #pngfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL03/profiles_{}_{}.png'
+    pngfile = 'test.png'
 
     fennelP(dtime, station, freefile=freefile, obsfile=obsfile, pngfile=pngfile)
