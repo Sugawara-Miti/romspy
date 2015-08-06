@@ -45,7 +45,7 @@ def make_obs_file(ncfile, csvfile, stafile):
     sta = pd.read_csv(stafile, index_col='station')
     for i in xrange(1,14):
         df.ix[df.station==i, "xgrid"] = sta.xgrid[i]
-        df.loc[df.station==i, "ygrid"] = sta.xgrid[i]
+        df.loc[df.station==i, "ygrid"] = sta.ygrid[i]
         df.loc[df.station==i, "lat"] = sta.lat[i]
         df.loc[df.station==i, "lon"] = sta.lon[i]
 
@@ -161,7 +161,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
 if __name__ == '__main__':
 
-    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-2.nc'
+    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
     inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
     stafile = '/Users/teruhisa/Dropbox/Data/stations13.csv'
     make_obs_file(outfile, inpfile, stafile)
