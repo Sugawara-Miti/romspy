@@ -11,7 +11,7 @@ from make import *
 
 __version__ = 3.0
 bio_units = {'others':'millimole meter-3',
-             'chrolophyll':'milligram meter-3',
+             'chlorophyll':'milligram meter-3',
              'alkalinity':'milliequivalens meter-3'}
 
 
@@ -68,7 +68,7 @@ def make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, biofiles=None, bio=No
     nc.close()
 
 
-if __name__ == '__main__':
+def _test1():
 
     ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_2012_fennelP-1.nc'
 
@@ -84,3 +84,8 @@ if __name__ == '__main__':
     #            's':'/Users/teruhisa/Dropbox/Data/fennel_s_linear.csv'}
 
     make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, bio='fennelP')
+
+
+if __name__ == '__main__':
+
+    _test2()
