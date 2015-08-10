@@ -2,31 +2,32 @@
 
 import netCDF4
 
-def grid_mask(editfile, editedfile):
 
-    grid = netCDF4.Dataset(gridfile, 'r+')
-    edited = netCDF4.Dataset(editedfile, 'r')
+def grid_mask(grdfile, reffile):
 
-    mask_rho = grid.variables['mask_rho']
-    mask_u = grid.variables['mask_u']
-    mask_v = grid.variables['mask_v']
-    mask_psi = grid.variables['mask_psi']
+    grd = netCDF4.Dataset(grdfile, 'r+')
+    ref = netCDF4.Dataset(reffile, 'r')
 
-    masked_rho = edited.variables['mask_rho']
-    masked_u = edited.variables['mask_u']
-    masked_v = edited.variables['mask_v']
-    masked_psi = edited.variables['mask_psi']
+    mask_rho = grd.variables['mask_rho']
+    mask_u = grd.variables['mask_u']
+    mask_v = grd.variables['mask_v']
+    mask_psi = grd.variables['mask_psi']
+
+    masked_rho = ref.variables['mask_rho']
+    masked_u = ref.variables['mask_u']
+    masked_v = ref.variables['mask_v']
+    masked_psi = ref.variables['mask_psi']
 
     mask_rho[:,:] = masked_rho[:,:]
     mask_u[:,:] = masked_u[:,:]
     mask_v[:,:] = masked_v[:,:]
     mask_psi[:,:] = masked_psi[:,:]
 
-    edited.close()
-    grid.close()
+    grd.close()
+    ref.close()
 
 if __name__ == '__main__':
 
-    gridfile = '/Users/teruhisa/Dropbox/matlab/ob500_grd.nc'
-    editedfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-v5.nc'
-    grid_mask(gridfile, editedfile)
+    grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8-nomask.nc'
+    reffile = '/Users/teruhisa/Dropbox/Data/ob500_grd-v3.1.nc'
+    grid_mask(grdfile, reffile)
