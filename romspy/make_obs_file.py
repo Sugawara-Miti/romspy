@@ -19,8 +19,8 @@ def make_obs_file(ncfile, csvfile, stafile):
     print 'stafile:', stafile
     print 'numpy version:', np.__version__, '(> 1.9.0)'
 
-    tunit_GMT = 'days since 1968-05-23 00:00:00 GMT'
-    tunit_JST = 'days since 1968-05-23 09:00:00 GMT'
+    GMT = 'days since 1968-05-23 00:00:00 GMT'
+    JST = 'days since 1968-05-23 09:00:00 GMT'
     state_variable = 19
 
     df = pd.read_csv(csvfile, parse_dates=True, index_col='datetime')
@@ -50,7 +50,7 @@ def make_obs_file(ncfile, csvfile, stafile):
         df.loc[df.station==i, "lon"] = sta.lon[i]
 
     time = [ts.to_datetime() for ts in df.index.tolist()]
-    time_out = netCDF4.date2num(time, tunit_JST)
+    time_out = netCDF4.date2num(time, JST)
     survey_out, nobs_out = np.unique(time_out, return_counts=True)
 
     station_out = df.station.tolist()
@@ -89,7 +89,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     survey_time = nc.createVariable('survey_time', dtype('double').char, ('survey',))
     survey_time.long_name = 'survey time'
-    survey_time.units = tunit_GMT
+    survey_time.units = GMT
     survey_time.calendar = 'gregorian'
 
     obs_variance = nc.createVariable('obs_variance', dtype('double').char, ('state_variable',))
@@ -121,7 +121,7 @@ def make_obs_file(ncfile, csvfile, stafile):
     obs_value = nc.createVariable('obs_value', dtype('double').char, ('datum',))
 
     obs_time.long_name  = 'time of observation'
-    obs_time.units      = tunit_GMT
+    obs_time.units      = GMT
     obs_time.calendar   = 'gregorian'
     obs_depth.long_name = 'depth of observation'
     obs_depth.units     = 'meter'
@@ -161,7 +161,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
 if __name__ == '__main__':
 
-    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
+    outfile = '/Users/teruhisa/Dropbox/Data/ob500a_obs_2012_obweb-3.nc'
     inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
-    stafile = '/Users/teruhisa/Dropbox/Data/stations13.csv'
+    stafile = '/Users/teruhisa/Dropbox/Data/stations13a.csv'
     make_obs_file(outfile, inpfile, stafile)
