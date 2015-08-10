@@ -24,3 +24,4 @@ import profiles_mg
 from O2_saturation import O2_saturation
 
 from get_time import get_time
+from get_variables import get_variables
