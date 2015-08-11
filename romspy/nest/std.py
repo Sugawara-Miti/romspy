@@ -3,6 +3,7 @@
 import netCDF4
 import numpy as np
 from numpy import dtype
+from datetime import datetime
 
 
 def std(oldfile, newfile, xi, eta):
@@ -18,6 +19,10 @@ def std(oldfile, newfile, xi, eta):
 
     old = netCDF4.Dataset(oldfile, 'r')
     new = netCDF4.Dataset(newfile, 'w', format='NETCDF3_CLASSIC')
+
+    new.Author = 'romspy.nest.std'
+    new.Created = datetime.now().isoformat()
+    new.oldfile = oldfile
 
     new.createDimension("xi_rho", xi_rho)
     new.createDimension("xi_u", xi_rho-1)
@@ -95,7 +100,7 @@ def _add_bio(old, new, eta, xi):
 
 if __name__ == '__main__':
 
-    oldfile = '/Users/teruhisa/Dropbox/Data/ob500_std_i_NL05_his_0004.nc'
-    newfile = '/Users/teruhisa/Dropbox/Data/ob500a_std_i_NL05_his_0004.nc'
+    oldfile = '/Users/teruhisa/Dropbox/Data/ob500_std_i_fennelP-3.nc'
+    newfile = '/Users/teruhisa/Dropbox/Data/ob500a_std_i_fennelP-3.nc'
 
     std(oldfile, newfile, xi=[58,117], eta=[35,124])

@@ -22,7 +22,7 @@ def hview(ncfile, vname, time=None, k=None, interval=None, fmt='%i', cff=1.0,
 
     # read
     nc = netCDF4.Dataset(ncfile, 'r')
-    print ncfile
+    print vname, ncfile
 
     if grdfile is not None:
         grd = netCDF4.Dataset(grdfile, 'r')
@@ -36,7 +36,7 @@ def hview(ncfile, vname, time=None, k=None, interval=None, fmt='%i', cff=1.0,
     if time is not None:
         t = netCDF4.date2num(time, JST)
         ocean_time = nc.variables['ocean_time'][:]
-        print netCDF4.num2date(ocean_time[0], JST), "-", netCDF4.num2date(ocean_time[-1], JST)
+        # print netCDF4.num2date(ocean_time[0], JST), "-", netCDF4.num2date(ocean_time[-1], JST)
         t = np.where(ocean_time==t)[0][0]
         if k is not None:
             var2d = nc.variables[vname][t,k-1,:,:] * cff

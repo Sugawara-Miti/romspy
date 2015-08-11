@@ -13,7 +13,6 @@ from make_std_file import make_std_file
 
 from basemap import basemap
 from hview import hview
-import hview
 from hview2 import hview2
 from hplot_stations import hplot_stations
 from hplot_values import hplot_values

@@ -69,7 +69,7 @@ def read_sta(stafile, dtime, station, varnames, tunit=sta_JST):
             var[name] = nc.variables[name][t,station-1,:]
 
     print stafile
-    print netCDF4.num2date(ocean_time[0], tunit), '-', netCDF4.num2date(ocean_time[-1], tunit)
+    # print netCDF4.num2date(ocean_time[0], tunit), '-', netCDF4.num2date(ocean_time[-1], tunit)
 
     return var, calculate_depth(nc, t, station)
 
@@ -81,7 +81,7 @@ def read_obs(obsfile, dtime, station):
     obs_time = nc.variables['obs_time'][:]
 
     print obsfile
-    print netCDF4.num2date(obs_time[0], obs_JST), '-', netCDF4.num2date(obs_time[-1], obs_JST)
+    # print netCDF4.num2date(obs_time[0], obs_JST), '-', netCDF4.num2date(obs_time[-1], obs_JST)
 
     index = np.where(obs_time == time)[0]
     obs_station = nc.variables['obs_station'][index]

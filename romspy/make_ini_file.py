@@ -6,7 +6,7 @@
 2015/05/02 okada remake it.
 """
 
-import datetime
+from datetime import datetime
 import netCDF4
 import numpy as np
 from numpy import dtype
@@ -16,20 +16,28 @@ import itertools
 
 
 def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
+
+    kmax = 20
+    Nbed = 20
+
     nc   = netCDF4.Dataset(grdfile, 'r')
     imax = len(nc.dimensions['xi_rho'])
     jmax = len(nc.dimensions['eta_rho'])
-    kmax = 20
-    Nbed = 20
-    h    = nc.variables['h'][:,:]
+    lon = nc.variables['lon_rho'][:,:]
+    lat = nc.variables['lat_rho'][:,:]
+    h   = nc.variables['h'][:,:]
     nc.close()
 
-    dstart = datetime.datetime(2012,1,1,0,0,0)
-    tunit_GMT = 'seconds since 1968-05-23 00:00:00 GMT'
-    tunit_JST = 'seconds since 1968-05-23 09:00:00 GMT'
-    time_out  = [netCDF4.date2num(dstart, tunit_JST)]
+    dstart = datetime(2012,1,1,0,0,0)
+    GMT = 'seconds since 1968-05-23 00:00:00 GMT'
+    JST = 'seconds since 1968-05-23 09:00:00 GMT'
+    time_out  = [netCDF4.date2num(dstart, JST)]
 
     nc = netCDF4.Dataset(inifile, 'w', format='NETCDF3_CLASSIC')
+    nc.Author = 'romspy.make_ini_file'
+    nc.Created = datetime.now().isoformat()
+    nc.grdfile = grdfile
+
     nc.createDimension('xi_rho', imax)
     nc.createDimension('xi_u',   imax-1)
     nc.createDimension('xi_v',   imax)
@@ -41,6 +49,8 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     nc.createDimension('ocean_time', len(time_out))
 
     time = nc.createVariable('ocean_time', dtype('double').char, ('ocean_time',))
+    lon_rho = nc.createVariable('lon_rho', dtype('float32').char, ('eta_rho', 'xi_rho'))
+    lat_rho = nc.createVariable('lat_rho', dtype('float32').char, ('eta_rho', 'xi_rho'))
     zeta = nc.createVariable('zeta', dtype('float32').char, ('ocean_time', 'eta_rho', 'xi_rho'))
     ubar = nc.createVariable('ubar', dtype('float32').char, ('ocean_time', 'eta_u', 'xi_u'))
     vbar = nc.createVariable('vbar', dtype('float32').char, ('ocean_time', 'eta_v', 'xi_v'))
@@ -49,7 +59,9 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     temp = nc.createVariable('temp', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
     salt = nc.createVariable('salt', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
 
-    time.units = tunit_GMT
+    time.units = GMT
+    lon_rho.units = 'degree_north'
+    lat_rho.units = 'degree_east'
     zeta.units = 'meter'
     ubar.units = 'meter second-1'
     vbar.units = 'meter second-1'
@@ -59,6 +71,8 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     salt.units = 'PSU'
 
     time[:]       = time_out
+    lon_rho[:,:]  = lon
+    lat_rho[:,:]  = lat
     zeta[:,:,:]   = 1.0
     ubar[:,:,:]   = 0.0
     vbar[:,:,:]   = 0.0
@@ -172,6 +186,6 @@ def add_bgc(nc, Nbed, h, bgcfile):
 if __name__ == '__main__':
 
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-6.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-7.nc'
     #bgcfile = 'rst{}.csv'
     make_ini_file(grdfile, inifile, biofile=0)
