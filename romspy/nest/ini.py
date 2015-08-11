@@ -95,7 +95,7 @@ def _add_bio(old, new, eta, xi):
 
 if __name__ == '__main__':
 
-    oldfile = '/Users/teruhisa/Dropbox/Data/ob500_ini_NL05_0805.nc'
-    newfile = '/Users/teruhisa/Dropbox/Data/ob500a_ini_NL05_0805.nc'
+    oldfile = '/home/okada/Dropbox/Data/ob500_ini_NL05_0805.nc'
+    newfile = '/home/okada/Dropbox/Data/ob500a_ini_NL05_0805.nc'
 
     ini(oldfile, newfile, xi=[58,117], eta=[35,124])

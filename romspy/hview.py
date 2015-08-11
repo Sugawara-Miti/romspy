@@ -173,9 +173,15 @@ def _test3():
     ini_diff(ncfile, 'temp', 20, interval=np.arange(-1.0,1.1,1), mapfile=mapfile, figfile="hview_test3.png")
 
 
+def _test4():
+    ncfile = '/home/okada/roms/Apps/OB500A/I4DVAR01/ob500a_ini.nc'
+    mapfile = '/home/okada/Dropbox/Data/deg_OsakaBayMap_okada.bln'
+    ini_diff(ncfile, 'zeta', interval=np.arange(-1.0,1.1,2), mapfile=mapfile, figfile="hview_test4.png")
+
+
 if __name__ == '__main__':
 
-    _test3()
+    _test4()
 
     """
     from hplot_stations import hplot_stations
