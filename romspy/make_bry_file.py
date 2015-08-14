@@ -70,7 +70,7 @@ def make_bry_file(ncfile, dims, dates, zetafiles, wqfiles, biofiles=None, bio=No
 
 def _test1():
 
-    ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_2012_fennelP-1.nc'
+    ncfile = '/Users/teruhisa/Dropbox/Data/ob500_bry_2012_fennelP-2.nc'
 
     dims = {'xi':117, 'eta':124, 's':20}
     dates = ['2012-01-01', '2013-01-01']
@@ -88,4 +88,4 @@ def _test1():
 
 if __name__ == '__main__':
 
-    _test2()
+    _test1()

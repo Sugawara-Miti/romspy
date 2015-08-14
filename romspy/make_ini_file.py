@@ -73,7 +73,7 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
     time[:]       = time_out
     lon_rho[:,:]  = lon
     lat_rho[:,:]  = lat
-    zeta[:,:,:]   = 1.0
+    zeta[:,:,:]   = 1.5
     ubar[:,:,:]   = 0.0
     vbar[:,:,:]   = 0.0
     u[:,:,:,:]    = 0.0
@@ -186,6 +186,6 @@ def add_bgc(nc, Nbed, h, bgcfile):
 if __name__ == '__main__':
 
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-7.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-8.nc'
     #bgcfile = 'rst{}.csv'
     make_ini_file(grdfile, inifile, biofile=0)

@@ -60,8 +60,9 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
     hour_out['river_transport'] = np.ndarray(shape=[td_h, n_river])
     for i, name in enumerate(river_names):
         hour_out['river_transport'][:,i] = q[name]
-    for t in xrange(300):
-        hour_out['river_transport'][t,:] = hour_out['river_transport'][t,:] * float(t) / 300.0
+
+    for t in xrange(744):
+        hour_out['river_transport'][t,:] = hour_out['river_transport'][t,:] * float(t) / 744.0
     """
     plt.plot(hour_out['river_transport'][:,7])
     plt.show()
@@ -258,7 +259,7 @@ def make_river_file(ncname, metafile, rainfile, yodofile, yamatofile, wqfile):
 
 if __name__ == '__main__':
 
-    ncname = '/Users/teruhisa/Dropbox/Data/ob500_river_2012_fennelP-3.nc'
+    ncname = '/Users/teruhisa/Dropbox/Data/ob500_river_2012_fennelP-4.nc'
     metafile = '/Users/teruhisa/Dropbox/Data/river/meta34.csv'
     rainfile = '/Users/teruhisa/Dropbox/Data/river/rain_2012.csv'
     yodofile = '/Users/teruhisa/Dropbox/Data/river/yodo_2012.csv'

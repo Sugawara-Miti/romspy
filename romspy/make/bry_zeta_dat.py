@@ -12,8 +12,8 @@ import pandas as pd
 
 def ramp(zeta):
 
-    for i in xrange(300):
-        zeta[i] = zeta[i] * i / 300.0 + 100.0 * (1.0 - i / 300.0)
+    for i in xrange(744):
+        zeta[i] = zeta[i] * i / 744.0 + 150.0 * (1.0 - i / 744.0)
 
     return zeta
 
