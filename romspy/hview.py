@@ -38,12 +38,16 @@ def hview(ncfile, vname, time=None, k=None, interval=None, fmt='%i', cff=1.0,
         ocean_time = nc.variables['ocean_time'][:]
         # print netCDF4.num2date(ocean_time[0], JST), "-", netCDF4.num2date(ocean_time[-1], JST)
         t = np.where(ocean_time==t)[0][0]
-        if k is not None:
-            var2d = nc.variables[vname][t,k-1,:,:] * cff
-        else:
-            var2d = nc.variables[vname][t,:,:] * cff
     else:
-        var2d = nc.variables[vname][:,:] * cff
+        t = 0
+
+    var = nc.variables[vname]
+    if var.ndim == 4:
+        var2d = var[t,k-1,:,:] * cff
+    elif var.ndim == 3:
+        var2d = var[t,:,:] * cff
+    else:
+        var2d = var[:,:] * cff
     nc.close()
 
     # pcolor
@@ -106,12 +110,13 @@ def ini_diff(ncfile, vname, k=None, interval=None, fmt='%i', cff=1.0,
 
     ocean_time = nc.variables['ocean_time'][0]
     time = netCDF4.num2date(ocean_time, JST)
-    if k is not None:
-        var2d = nc.variables[vname][:,k-1,:,:] * cff
+    var = nc.variables[vname]
+    if var.ndim == 4:
+        var = var[:,k-1,:,:] * cff
     else:
-        var2d = nc.variables[vname][:,:,:] * cff
+        var = var[:,:,:] * cff
     nc.close()
-    var2d = var2d[1,:,:] - var2d[0,:,:]
+    var2d = var[1,:,:] - var[0,:,:]
 
     # pcolor
     ax = plt.gca()
@@ -150,57 +155,11 @@ def ini_diff(ncfile, vname, k=None, interval=None, fmt='%i', cff=1.0,
         return ax
 
 
-def _test1():
-    import datetime as dt
-    time = dt.datetime(2012, 3, 5, 12)
-    ncfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL02/ob500_dia_0003.nc'
-    mapfile = '/Users/teruhisa/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    hview(ncfile, 'SOD', time, interval=np.arange(-30,1,5), mapfile=mapfile)
-    plt.savefig("hview_test.png")
-
-
-def _test2():
-    import datetime as dt
-    time = dt.datetime(2012, 8, 5, 0)
-    ncfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/I4DVAR/ob500_ini.nc'
-    mapfile = '/Users/teruhisa/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    hview(ncfile, 'temp', time, 20, mapfile=mapfile, figfile="hview_test2.png")
-
-
-def _test3():
-    ncfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/I4DVAR01/ob500_ini.nc'
-    mapfile = '/Users/teruhisa/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    ini_diff(ncfile, 'temp', 20, interval=np.arange(-1.0,1.1,1), mapfile=mapfile, figfile="hview_test3.png")
-
-
 def _test4():
     ncfile = '/home/okada/roms/Apps/OB500A/I4DVAR01/ob500a_ini.nc'
     mapfile = '/home/okada/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    ini_diff(ncfile, 'zeta', interval=np.arange(-1.0,1.1,2), mapfile=mapfile, figfile="hview_test4.png")
+    ini_diff(ncfile, 'temp', 20, mapfile=mapfile, figfile="hview_test4.png", interval=np.arange(-1.0,1.1,2))
 
 
 if __name__ == '__main__':
-
     _test4()
-
-    """
-    from hplot_stations import hplot_stations
-    from hplot_values import hplot_values
-
-    hview('../example/OB500/nc/ob500_avg.nc',
-          '../example/OB500/ob500_avg_temp_t0_k20.png',
-          vname='temp', t=0, k=20, cblabel='Temperature[C]')
-
-    hview('../example/OB500/nc/ob500_grd-v5.nc',
-          vname='h', cblabel='Depth[m]',
-          vmax=0, vmin=-120, interval=20, cff=-1)
-    hplot_stations('../../OB500/Data/ob500_obs_tsdc.nc')
-    plt.savefig('../example/OB500/ob500_grd-v5.png', bbox_inches='tight')
-
-    hview('../example/OB500/nc/ob500_avg.nc',
-          vname='temp', t=0, k=20, cblabel='Temperature[C]')
-    hplot_values('../../OB500/Data/ob500_obs_tsdc.nc',
-                 6, datetime.datetime(2012,8,24,6))
-    plt.savefig('../example/OB500/ob500_avg_temp_t0_k20_values.png', 
-                bbox_inches='tight')
-    """
