@@ -6,3 +6,4 @@ example/*/nc
 .ipynb_checkpoints/
 
 *.nc
+*.stackdump
