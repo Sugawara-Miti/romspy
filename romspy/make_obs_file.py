@@ -8,11 +8,11 @@
 import netCDF4
 import numpy as np
 from numpy import dtype
-import datetime
+from datetime import datetime
 import pandas as pd
 
 
-def make_obs_file(ncfile, csvfile, stafile):
+def make_obs_file(ncfile, csvfile, stafile, dates=None, varids=None):
 
     print 'ncfile:', ncfile
     print 'obsfile:', csvfile
@@ -25,8 +25,16 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     df = pd.read_csv(csvfile, parse_dates=True, index_col='datetime')
     df = df.sort()
+    if dates is not None:
+        df = df[df.index >= dates[0]]
+        df = df[df.index <= dates[1]]
+    if varids is not None:
+        if len(varids) == 2:
+            df = df[(df.type==varids[0]) | (df.type==varids[1])]
     df.depth = -df.depth
     print df.head()
+    print df.tail()
+    #exit()
 
     """
     You need to change each errors
@@ -69,7 +77,7 @@ def make_obs_file(ncfile, csvfile, stafile):
 
     nc = netCDF4.Dataset(ncfile, 'w', format='NETCDF3_CLASSIC')
 
-    now = datetime.datetime.now()
+    now = datetime.now()
     nc.history = now.strftime('%Y-%m-%d %H:%M:%S')
     nc.author = 'OKADA Teruhisa'
 
@@ -161,7 +169,9 @@ def make_obs_file(ncfile, csvfile, stafile):
 
 if __name__ == '__main__':
 
-    outfile = '/Users/teruhisa/Dropbox/Data/ob500a_obs_2012_obweb-3.nc'
+    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_201208_bio-1.nc'
     inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
-    stafile = '/Users/teruhisa/Dropbox/Data/stations13a.csv'
-    make_obs_file(outfile, inpfile, stafile)
+    stafile = '/Users/teruhisa/Dropbox/Data/stations13.csv'
+    dates = [datetime(2012,8,1,0), datetime(2012,9,1,0)]
+    varids = [10,15]
+    make_obs_file(outfile, inpfile, stafile, dates, varids)

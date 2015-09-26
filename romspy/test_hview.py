@@ -12,12 +12,11 @@ import hview
 import romspy
 
 
-def _test1():
-    time = datetime(2012, 3, 5, 12)
-    ncfile = '/Users/teruhisa/Dropbox/Data/OB500_fennelP/NL02/ob500_dia_0003.nc'
+def _grd():
+    ncfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-9.nc'
     mapfile = '/Users/teruhisa/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    hview(ncfile, 'SOD', time, interval=np.arange(-30,1,5), mapfile=mapfile)
-    plt.savefig("hview_test.png")
+    romspy.hview(ncfile, 'h', interval=np.arange(-10,0.1,5), mapfile=mapfile, cff=-1)
+    plt.savefig("test_hview_grd.png")
 
 
 def _test2():
@@ -27,10 +26,16 @@ def _test2():
     hview(ncfile, 'temp', time, 20, mapfile=mapfile, figfile="hview_test2.png")
 
 
-def _test3():
-    ncfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/I4DVAR01/ob500_ini.nc'
+def _ini_diff3():
+    ncfile = '/Users/teruhisa/mnt/data/is4dvar_out/03/ob500_ini_0.nc'
     mapfile = '/Users/teruhisa/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    hview.ini_diff(ncfile, 'temp', 20, interval=np.arange(-1.0,1.1,1), mapfile=mapfile, figfile="hview_test3.png")
+    hview.ini_diff(ncfile, 'oxygen', 20, mapfile=mapfile, figfile="test_hview_ini_diff3.png")#, interval=np.arange(-1.0,1.1,1)
+
+
+def _ini_diff4():
+    ncfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/IS4DVAR03/ob500_ini_0.nc'
+    mapfile = '/Users/teruhisa/Dropbox/Data/deg_OsakaBayMap_okada.bln'
+    hview.ini_diff(ncfile, 'oxygen', 20, mapfile=mapfile, figfile="test_hview_ini_diff3.png")#, interval=np.arange(-1.0,1.1,1)
 
 
 def _test4():
@@ -54,5 +59,6 @@ def _test6():
     print romspy.get_time(ncfile)
     romspy.hview(ncfile, 'chlorophyll', time, 20, mapfile=mapfile, figfile="hview_test6.png")
 
+
 if __name__ == '__main__':
-    _test6()
+    _ini_diff4()

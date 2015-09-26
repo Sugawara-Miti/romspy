@@ -32,8 +32,8 @@ def make_std_file(inifile, stdfile):
     edit_var(stdfile, 'vbar', 0.0)
     edit_var(stdfile, 'u', [0.0, 0.0])
     edit_var(stdfile, 'v', [0.0, 0.0])
-    edit_var(stdfile, 'temp', [0.0, 1.0])
-    edit_var(stdfile, 'salt', [0.0, 1.0])
+    edit_var(stdfile, 'temp', [0.0, 0.0])
+    edit_var(stdfile, 'salt', [0.0, 0.0])
     edit_var(stdfile, 'NO3', [0.0, 1.0])
     edit_var(stdfile, 'NH4', [0.0, 0.1])
     edit_var(stdfile, 'chlorophyll', [0.0, 3.0])
@@ -50,5 +50,5 @@ def make_std_file(inifile, stdfile):
 
 if __name__ == '__main__':
     inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-7.nc'
-    stdfile = '/Users/teruhisa/Dropbox/Data/ob500_std_i_fennelP-3.nc'
+    stdfile = '/Users/teruhisa/Dropbox/Data/ob500_std_i_fennelP-4.nc'
     make_std_file(inifile, stdfile)
