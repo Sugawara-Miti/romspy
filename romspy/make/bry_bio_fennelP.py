@@ -44,6 +44,7 @@ def bry_bio_fennelP(dims):
     bio['w']['H2S'][:,:,:]     = 0.0
     bio['s']['H2S'][:,:,:]     = 0.0
 
+    """
     bio['w']['oxygen'][0,:,:]  = 8.81
     bio['w']['oxygen'][1,:,:]  = 9.40
     bio['w']['oxygen'][2,:,:]  = 9.05
@@ -70,6 +71,35 @@ def bry_bio_fennelP(dims):
     bio['s']['oxygen'][10,:,:] = 6.2
     bio['s']['oxygen'][11,:,:] = 7.51
     bio['s']['oxygen'][12,:,:] = 8.81
+    """
+
+    bio['w']['oxygen'][0,:,:]  = 13.0
+    bio['w']['oxygen'][1,:,:]  = 13.0
+    bio['w']['oxygen'][2,:,:]  = 13.0
+    bio['w']['oxygen'][3,:,:]  = 13.0
+    bio['w']['oxygen'][4,:,:]  = 12.0
+    bio['w']['oxygen'][5,:,:]  = 10.5
+    bio['w']['oxygen'][6,:,:]  = 10.0
+    bio['w']['oxygen'][7,:,:]  = 9.5
+    bio['w']['oxygen'][8,:,:]  = 9.0
+    bio['w']['oxygen'][9,:,:]  = 9.0
+    bio['w']['oxygen'][10,:,:] = 9.5
+    bio['w']['oxygen'][11,:,:] = 11.0
+    bio['w']['oxygen'][12,:,:] = 12.5
+
+    bio['s']['oxygen'][0,:,:]  = 13.0
+    bio['s']['oxygen'][1,:,:]  = 13.0
+    bio['s']['oxygen'][2,:,:]  = 13.0
+    bio['s']['oxygen'][3,:,:]  = 13.0
+    bio['s']['oxygen'][4,:,:]  = 12.0
+    bio['s']['oxygen'][5,:,:]  = 10.5
+    bio['s']['oxygen'][6,:,:]  = 10.0
+    bio['s']['oxygen'][7,:,:]  = 9.5
+    bio['s']['oxygen'][8,:,:]  = 9.0
+    bio['s']['oxygen'][9,:,:]  = 9.0
+    bio['s']['oxygen'][10,:,:] = 9.5
+    bio['s']['oxygen'][11,:,:] = 11.0
+    bio['s']['oxygen'][12,:,:] = 12.5
 
     for name in bionames:
 

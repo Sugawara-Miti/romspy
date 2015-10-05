@@ -169,9 +169,11 @@ def make_obs_file(ncfile, csvfile, stafile, dates=None, varids=None):
 
 if __name__ == '__main__':
 
-    outfile = '/Users/teruhisa/Dropbox/Data/ob500_obs_201208_bio-1.nc'
-    inpfile = '/Users/teruhisa/Dropbox/Data/obweb/converted_db.csv'
-    stafile = '/Users/teruhisa/Dropbox/Data/stations13.csv'
-    dates = [datetime(2012,8,1,0), datetime(2012,9,1,0)]
-    varids = [10,15]
-    make_obs_file(outfile, inpfile, stafile, dates, varids)
+    #dates = [datetime(2012,8,1,0), datetime(2012,9,1,0)]
+    #outfile = 'F:/okada/Dropbox/Data/ob500_obs_20108_obweb-3.nc'
+    dates = [datetime(2012,1,1,0), datetime(2013,1,1,0)]
+    outfile = 'F:/okada/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
+    inpfile = 'F:/okada/Dropbox/Data/obweb/converted_db_oxygen.csv'
+    stafile = 'F:/okada/Dropbox/Data/stations13.csv'
+    #varids = [10,15]
+    make_obs_file(outfile, inpfile, stafile, dates, varids=None)

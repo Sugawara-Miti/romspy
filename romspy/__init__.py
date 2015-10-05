@@ -4,6 +4,9 @@
 2015/05/02 okada make this file.
 """
 
+JST = 'seconds since 1968-05-23 09:00:00 GMT'
+JST_days = 'days since 1968-05-23 09:00:00 GMT'
+
 from make_ini_file import make_ini_file
 from make_bry_file import make_bry_file
 from make_frc_file import make_frc_file
@@ -15,13 +18,15 @@ from make_grd_file import make_grd_file
 from add_masklines import add_masklines
 
 from basemap import basemap
-from hview import hview
+#from hview import hview
+import hview
 from hview2 import hview2
 from hplot_stations import hplot_stations
 from hplot_values import hplot_values
 
 from tview_obs import tview_obs
 
+import profile
 import profiles
 import profiles_mg
 

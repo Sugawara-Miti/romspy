@@ -145,7 +145,7 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
     #varnames = ['temp', 'salt', 'chlorophyll', 'NO3', 'NH4', 'PO4', 'oxygen']
     #varnames = ['temp', 'salt', 'chlorophyll', 'TN', 'TP', 'PP', 'oxygen']
     #varnames = ['temp', 'salt', 'chlorophyll', 'PO4', 'LdetritusP', 'SdetritusP', 'oxygen']
-    varnames = ['temp', 'salt', 'chlorophyll', 'DIN', 'DetritusN', 'PO4', 'DetritusP', 'oxygen']
+    varnames = ['temp', 'salt', 'chlorophyll', 'oxygen', 'DIN', 'DetritusN', 'PO4', 'DetritusP']
     colors = ['c', 'k', 'g', 'r', 'r', 'm', 'm', 'b']
     c = {name:c for name, c in zip(varnames, colors)}
 
@@ -160,37 +160,39 @@ def fennelP(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=
 
     # plot
 
-    fig, ax = plt.subplots(1, len(varnames), figsize=[20,3])
+    #fig, ax = plt.subplots(1, len(varnames), figsize=[20,3])
+    fig, ax = plt.subplots(2, 4, figsize=[20,10])
+    ax1 = [ax[i][j] for i in range(2) for j in range(4)]
     for i, varname in enumerate(varnames):
         if freefile is not None:
-            plot_sta(varname, fvar, fdepth, ax[i], c, 'Free')
+            plot_sta(varname, fvar, fdepth, ax1[i], c, 'Free')
         if assifile is not None:
-            plot_sta(varname, avar, adepth, ax[i], c, 'Assi')
+            plot_sta(varname, avar, adepth, ax1[i], c, 'Assi')
         if obsfile is not None:
-            plot_obs(varname, station, obs, ax[i])
-        ax[i].grid()
-        ax[i].set_ylim(-14,0)
+            plot_obs(varname, station, obs, ax1[i])
+        ax1[i].grid()
+        ax1[i].set_ylim(-14,0)
 
     # settings
 
-    ax[0].set_xlabel('Temperature [degC]')
-    ax[1].set_xlabel('Salinity')
-    ax[2].set_xlabel('Chlorophyll [$\mu$g l$^{-1}$]')
-    ax[3].set_xlabel('DIN'+mgN)
-    ax[4].set_xlabel('DetritusN'+mgN)
-    ax[5].set_xlabel('PO4'+mgP)
-    ax[6].set_xlabel('DetritusP'+mgP)
-    ax[7].set_xlabel('Oxygen'+mgO2)
+    ax1[0].set_xlabel('Temperature [degC]')
+    ax1[1].set_xlabel('Salinity')
+    ax1[2].set_xlabel('Chlorophyll [$\mu$g l$^{-1}$]')
+    ax1[3].set_xlabel('Oxygen'+mgO2)
+    ax1[4].set_xlabel('DIN'+mgN)
+    ax1[5].set_xlabel('DetritusN'+mgN)
+    ax1[6].set_xlabel('PO4'+mgP)
+    ax1[7].set_xlabel('DetritusP'+mgP)
 
-    ax[0].tick_params(labelleft='on')
-    ax[0].set_xlim(15,33)
-    ax[1].set_xlim(15,33)
-    ax[2].set_xlim(0,30.0)
-    ax[3].set_xlim(0,0.4)
-    ax[4].set_xlim(0,0.4)
-    ax[5].set_xlim(0,0.02)
-    ax[6].set_xlim(0,0.02)
-    ax[7].set_xlim(0,20.0)
+    ax1[0].tick_params(labelleft='on')
+    """ax1[0].set_xlim(15,33)
+    ax1[1].set_xlim(15,33)
+    ax1[2].set_xlim(0,30.0)
+    ax1[3].set_xlim(0,20.0)
+    ax1[4].set_xlim(0,0.4)
+    ax1[5].set_xlim(0,0.4)
+    ax1[6].set_xlim(0,0.02)
+    ax1[7].set_xlim(0,0.02)"""
 
     # output
 
@@ -237,12 +239,12 @@ def npzd(dtime, station, freefile=None, assifile=None, obsfile=None, pngfile=Non
     ax[5].set_xlabel('Detritus'+mgN)
     ax[4].set_xlabel('Zooplankton'+mgN)
 
-    ax[0].set_xlim(23,33)
+    """ax[0].set_xlim(23,33)
     ax[1].set_xlim(23,33)
     ax[2].set_xlim(0,6.0)
     ax[3].set_xlim(0,6.0)
     ax[4].set_xlim(0,6.0)
-    ax[5].set_xlim(0,6.0)
+    ax[5].set_xlim(0,6.0)"""
 
     fig.suptitle('Sta.'+str(station)+dtime.strftime(' %Y-%m-%d %H:%M'))
     if pngfile is not None:

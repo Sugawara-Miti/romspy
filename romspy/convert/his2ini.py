@@ -6,20 +6,20 @@ import numpy as np
 from numpy import dtype
 
 
-def his2ini(hisfile, inifile, dstart):
+def his2ini(hisfile, inifile, date, redate=None):
 
     GMT = 'seconds since 1968-05-23 00:00:00 GMT'
     JST = 'seconds since 1968-05-23 09:00:00 GMT'
 
-    daystart = datetime.datetime.strftime(dstart, '%m%d')
+    daystart = datetime.datetime.strftime(date, '%m%d')
     inifile = inifile.format(daystart)
 
     his = netCDF4.Dataset(hisfile, 'r')
     ini = netCDF4.Dataset(inifile, 'w', format='NETCDF3_CLASSIC')
 
     time = his.variables['ocean_time']
-    dstart = netCDF4.date2num(dstart, JST)
-    t = np.where(time[:]==dstart)[0][0]
+    dnum = netCDF4.date2num(date, JST)
+    t = np.where(time[:]==dnum)[0][0]
 
     for name in his.dimensions.keys():
         if name == 'ocean_time':
@@ -49,7 +49,10 @@ def his2ini(hisfile, inifile, dstart):
     temp.units = 'Celsius'
     salt.units = 'PSU'
 
-    time[0]     = his.variables['ocean_time'][t]
+    if redate is not None:
+        time[0] = netCDF4.date2num(redate, JST)
+    else:
+        time[0] = his.variables['ocean_time'][t]
     lon[:,:]    = his.variables['lon_rho'][:,:]
     lat[:,:]    = his.variables['lat_rho'][:,:]
     zeta[0,:,:] = his.variables['zeta'][t,:,:]
@@ -92,10 +95,12 @@ def add_bio(ini, his, t):
 
 if __name__ == '__main__':
 
-    hisfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/NL05/ob500_his_0004.nc'
-    #inifile = '/Users/teruhisa/mnt/apps/OB500_fennelP/NL05/ob500_ini_{}.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_NL05_{}.nc'
+    #hisfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/NL05/ob500_his_0004.nc'
+    #inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_NL05_{}.nc'
+    hisfile = 'Z:/roms/Apps/OB500_fennelP/NL08/ob500_rst.nc'
+    inifile = 'F:/okada/Dropbox/Data/ob500_rst_NL08_{}.nc'
     import romspy
     print romspy.get_time(hisfile, 'all')
-    dstart = datetime.datetime(2012, 8, 5, 0, 0, 0)
-    his2ini(hisfile, inifile, dstart)
+    date = datetime.datetime(2013, 1, 1, 0, 0, 0)
+    redate = datetime.datetime(2012, 1, 1, 0, 0, 0)
+    his2ini(hisfile, inifile, date, redate)

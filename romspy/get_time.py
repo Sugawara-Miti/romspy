@@ -10,8 +10,8 @@ JST = 'seconds since 1968-05-23 09:00:00 GMT'
 
 
 def get_time(ncfile, which='ends', tunit=JST, name='ocean_time'):
+    print "\nget_time({}, which={}, tunit={}, name={})".format(ncfile, which, tunit, name)
     nc = netCDF4.Dataset(ncfile, 'r')
-    print ncfile
     if which == 'ends':
         t = len(nc.dimensions[name])
         start = nc.variables[name][0]
@@ -23,7 +23,7 @@ def get_time(ncfile, which='ends', tunit=JST, name='ocean_time'):
         for t in range(len(time)):
             print netCDF4.num2date(time[t], JST), t
     else:
-        print 'You should select "ends" or "all"'
+        print 'ERROR: You should select "ends" or "all"'
     nc.close()
 
 if __name__ == '__main__':

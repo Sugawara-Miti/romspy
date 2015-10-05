@@ -1,9 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """
-2015/05/01 okada make this file.
-2015/05/10 okada enable hview to handle grid nc file,
-                 and add plot_obs_positions.
+(c) 2015-09-26 Teruhisa Okada
 """
 
 import netCDF4
@@ -15,151 +13,132 @@ import datetime
 from basemap import basemap
 
 
-def hview(ncfile, vname, time=None, k=None, interval=None, fmt='%i', cff=1.0, 
-          cblabel=None, mapfile=None, cmap='jet', figfile=None, grdfile=None):
-
+class Dataset():
     JST = 'seconds since 1968-05-23 09:00:00 GMT'
 
-    # read
-    nc = netCDF4.Dataset(ncfile, 'r')
-    print vname, ncfile
+    def __init__(self, ncfile, mapfile):
+        print '\nDataset(ncfile={})'.format(ncfile)
+        self.ncfile = ncfile
+        self.mapfile = mapfile
+        #self.vname = vname
+        self.nc = netCDF4.Dataset(self.ncfile, 'r')
 
-    if grdfile is not None:
-        grd = netCDF4.Dataset(grdfile, 'r')
-        x_rho = grd.variables['lon_rho'][0,:]-0.00449/2
-        y_rho = grd.variables['lat_rho'][:,0]-0.00546/2
-        grd.close()
-    else:
-        x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
-        y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
+    def print_time(self, which='ends', name='ocean_time', tunit=JST):
+        print "\nprint_time(which={}, name={}, tunit={})".format(which, name, tunit)
+        nc = self.nc
+        if which == 'ends':
+            t = len(nc.dimensions[name])
+            start = nc.variables[name][0]
+            end = nc.variables[name][t-1]
+            print netCDF4.num2date(start, tunit), 0
+            print netCDF4.num2date(end, tunit), t-1
+        elif which == 'all':
+            time = nc.variables[name][:]
+            for t in range(len(time)):
+                print netCDF4.num2date(time[t], tunit), t
+        else:
+            print 'You should select "ends" or "all"'
 
-    if time is not None:
-        t = netCDF4.date2num(time, JST)
-        ocean_time = nc.variables['ocean_time'][:]
-        # print netCDF4.num2date(ocean_time[0], JST), "-", netCDF4.num2date(ocean_time[-1], JST)
-        t = np.where(ocean_time==t)[0][0]
-    else:
-        t = 0
+    def print_varname(self, ndim=None):
+        print '\nprint_varname(ndim={})'.format(ndim)
+        if ndim is not None:
+            for vname in self.nc.variables.keys():
+                if self.nc.variables[vname].ndim == ndim:
+                    print vname,
+            print ''
+        else:
+            print self.nc.variables.keys()
 
-    var = nc.variables[vname]
-    if var.ndim == 4:
-        var2d = var[t,k-1,:,:] * cff
-    elif var.ndim == 3:
-        var2d = var[t,:,:] * cff
-    else:
-        var2d = var[:,:] * cff
-    nc.close()
+    def get_varname(self, ndim=None):
+        if ndim is not None:
+            varnames = []
+            for vname in self.nc.variables.keys():
+                if self.nc.variables[vname].ndim == ndim:
+                    varnames.append(vname)
+            return varnames
+        else:
+            return self.nc.variables.keys()
 
-    # pcolor
-    ax = plt.gca()
-    X, Y = np.meshgrid(x_rho, y_rho)
-    if interval is not None:
-        PC = ax.pcolor(X, Y, var2d, cmap=cmap, vmin=interval[0], vmax=interval[-1])
-    else:
-        PC = ax.pcolor(X, Y, var2d, cmap=cmap)
-    cbar = plt.colorbar(PC)
-    if cblabel is not None:
-        cbar.ax.set_ylabel(cblabel)
-    else:
-        cbar.ax.set_ylabel(vname)
+    def hview(self, vname, time=-1, k=20, interval=None, fmt='%i', cff=1.0, 
+              cblabel=None, cmap='jet', grdfile=None, tunit=JST):
+        print 'hview(vname={}, time={}, k={}, interval={}, fmt={}, cff={}, cblabel={}, cmap={}, grdfile={}, tunit={})'.format(
+            vname, time, k, interval, fmt, cff, cblabel, cmap, grdfile, tunit)
+        nc = self.nc
+        # read
+        if grdfile is not None:
+            grd = netCDF4.Dataset(grdfile, 'r')
+            x_rho = grd.variables['lon_rho'][0,:]-0.00449/2
+            y_rho = grd.variables['lat_rho'][:,0]-0.00546/2
+            grd.close()
+        else:
+            x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
+            y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
 
-    # contour
-    matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
-    if interval is not None:
-        CF = plt.contour(X+0.00449, Y+0.00546, var2d, interval, colors='k', ls='-')
-    else:
-        CF = plt.contour(X+0.00449, Y+0.00546, var2d, colors='k', ls='-')
-    CF.clabel(fontsize=9, fmt=fmt, c='k')
+        if type(time) == datetime.datetime:
+            t = netCDF4.date2num(time, tunit)
+            ocean_time = nc.variables['ocean_time'][:]
+            # print netCDF4.num2date(ocean_time[0], tunit), "-", netCDF4.num2date(ocean_time[-1], tunit)
+            t = np.where(ocean_time==t)[0][0]
+        elif type(time) == int:
+            t = time
+            time = netCDF4.num2date(nc.variables['ocean_time'][t], tunit)
+        else:
+            print 'ERROR: your type(time) is {}.\ntype(time) must be datetime.datetime or int\n'.format(type(time))
 
-    # basemap
-    if mapfile is not None:
-        basemap(mapfile)
-    else:
-        basemap()
+        var = nc.variables[vname]
+        if var.ndim == 4:
+            var2d = var[t,k-1,:,:] * cff
+        elif var.ndim == 3:
+            var2d = var[t,:,:] * cff
+        else:
+            var2d = var[:,:] * cff
 
-    # finalize
-    if vname == 'h':
-        plt.title('Model domein & bathymetry')
-    else:
-        plt.title(datetime.datetime.strftime(time,'%Y-%m-%d %H:%M:%S'))
+        # pcolor
+        ax = plt.gca()
+        X, Y = np.meshgrid(x_rho, y_rho)
+        if interval is not None:
+            PC = ax.pcolor(X, Y, var2d, cmap=cmap, vmin=interval[0], vmax=interval[-1])
+        else:
+            PC = ax.pcolor(X, Y, var2d, cmap=cmap)
+        cbar = plt.colorbar(PC)
+        if cblabel is not None:
+            cbar.ax.set_ylabel(cblabel)
+        else:
+            cbar.ax.set_ylabel(vname)
 
-    if figfile is not None:
-        plt.savefig(figfile, bbox_inches='tight')
-        plt.close()
-    else:
+        # contour
+        matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
+        if interval is not None:
+            CF = plt.contour(X+0.00449, Y+0.00546, var2d, interval, colors='k', ls='-')
+        else:
+            CF = plt.contour(X+0.00449, Y+0.00546, var2d, colors='k', ls='-')
+        CF.clabel(fontsize=9, fmt=fmt, c='k')
+
+        # basemap
+        basemap(self.mapfile)
+
+        # finalize
+        if vname == 'h':
+            plt.title('Model domein & bathymetry')
+        else:
+            plt.title(datetime.datetime.strftime(time,'%Y-%m-%d %H:%M:%S'))
+
         return ax
 
+    def show(self):
+        plt.show()
 
-def ini_diff(ncfile, vname, k=None, interval=None, fmt='%i', cff=1.0, 
-             cblabel=None, mapfile=None, cmap='jet', figfile=None, grdfile=None):
-
-    JST = 'seconds since 1968-05-23 09:00:00 GMT'
-
-    # read
-    nc = netCDF4.Dataset(ncfile, 'r')
-    print ncfile
-
-    if grdfile is not None:
-        grd = netCDF4.Dataset(grdfile, 'r')
-        x_rho = grd.variables['lon_rho'][0,:]-0.00449/2
-        y_rho = grd.variables['lat_rho'][:,0]-0.00546/2
-        grd.close()
-    else:
-        x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
-        y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
-
-    ocean_time = nc.variables['ocean_time'][0]
-    time = netCDF4.num2date(ocean_time, JST)
-    var = nc.variables[vname]
-    if var.ndim == 4:
-        var = var[:,k-1,:,:] * cff
-    else:
-        var = var[:,:,:] * cff
-    nc.close()
-    var2d = var[1,:,:] - var[0,:,:]
-
-    # pcolor
-    ax = plt.gca()
-    X, Y = np.meshgrid(x_rho, y_rho)
-    if interval is not None:
-        PC = ax.pcolor(X, Y, var2d, cmap=cmap, vmin=interval[0], vmax=interval[-1])
-    else:
-        PC = ax.pcolor(X, Y, var2d, cmap=cmap)
-    cbar = plt.colorbar(PC)
-    if cblabel is not None:
-        cbar.ax.set_ylabel(cblabel)
-    else:
-        cbar.ax.set_ylabel(vname)
-
-    # contour
-    matplotlib.rcParams['contour.negative_linestyle'] = 'solid'
-    if interval is not None:
-        CF = plt.contour(X+0.00449, Y+0.00546, var2d, interval, colors='k', ls='-')
-    else:
-        CF = plt.contour(X+0.00449, Y+0.00546, var2d, colors='k', ls='-')
-    CF.clabel(fontsize=9, fmt=fmt, c='k')
-
-    # basemap
-    if mapfile is not None:
-        basemap(mapfile)
-    else:
-        basemap()
-
-    # finalize
-    plt.title(datetime.datetime.strftime(time,'%Y-%m-%d %H:%M:%S'))
-
-    if figfile is not None:
+    def savefig(self, figfile='test.png'):
         plt.savefig(figfile, bbox_inches='tight')
         plt.close()
-    else:
-        return ax
-
-
-def _test4():
-    ncfile = '/home/okada/roms/Apps/OB500A/I4DVAR01/ob500a_ini.nc'
-    mapfile = '/home/okada/Dropbox/Data/deg_OsakaBayMap_okada.bln'
-    ini_diff(ncfile, 'temp', 20, mapfile=mapfile, figfile="hview_test4.png", interval=np.arange(-1.0,1.1,2))
-
 
 if __name__ == '__main__':
-    _test4()
+    ncfile = 'Z:/roms/Apps/OB500_fennelP/4DVAR04/output/ob500_ini_0.nc'
+    mapfile = 'F:/okada/Dropbox/Data/deg_OsakaBayMap_okada.bln'
+    ini = Dataset(ncfile, mapfile=mapfile)
+    ini.print_time()
+    ini.print_varname(4)
+    time = 0
+    k = 1
+    #ini.hview('oxygen', time=time, k=k, interval=np.arange(0.0,300.1,50))
+    #ini.savefig('hview_t{}_k{}.png'.format(time,k))
