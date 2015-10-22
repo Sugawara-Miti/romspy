@@ -19,8 +19,8 @@ def vview(linefile, ncfile, vname, t=-1, k=None, vmax=None, vmin=None,
 
     # read
     nc = netCDF4.Dataset(ncfile, 'r')
-    #x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
-    #y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
+    x_rho = nc.variables['lon_rho'][0,:]-0.00449/2
+    y_rho = nc.variables['lat_rho'][:,0]-0.00546/2
     ndim = len(nc.variables[vname].shape)
     ocean_time = nc.variables['ocean_time'][t]
     tunits = nc.variables['ocean_time'].units
@@ -105,6 +105,6 @@ if __name__ == '__main__':
     test = 0
 
     if test == 0:
-        vview('/Users/teruhisa/Dropbox/Data/line.csv',
-              '/Users/teruhisa/Dropbox/Data/ob500_rst.nc',
+        vview('F:/okada/Dropbox/Data/line.csv',
+              'F:/okada/Dropbox/Data/ob500_rst_NL08_0101.nc',
               'chlorophyll')

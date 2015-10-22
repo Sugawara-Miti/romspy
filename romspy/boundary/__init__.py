@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
-
-"""
-2015/05/01 okada make this file.
-"""
+# coding: utf-8
+# (c) 2015-05-01 Teruhisa Okada
 
 from bry_zeta_dat import bry_zeta_dat
 from bry_wq_csv import bry_wq_csv
@@ -12,3 +9,6 @@ from bry_time import bry_time
 from bry_write import bry_write_time
 from bry_write import bry_write_2d
 from bry_write import bry_write_3d
+from bry_var import bry_var
+
+__version__ = 1.1

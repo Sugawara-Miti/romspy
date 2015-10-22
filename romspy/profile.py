@@ -9,7 +9,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
 import pandas as pd
-from romspy import O2_saturation
+from mpltools import special
 
 
 class Profile():
@@ -67,7 +67,12 @@ class Profile():
             if self.t_free is None:
                 ocean_time = nc.variables['ocean_time'][:]
                 time = netCDF4.date2num(date, self.sta_JST)
-                t = np.where(ocean_time == time)[0][0]
+                if type(time) == np.int64:
+                    t = np.where(ocean_time == time)[0][0]
+                else:
+                    t0 = np.where(ocean_time == time[0])[0][0]
+                    t1 = np.where(ocean_time == time[1])[0][0]
+                    t = np.arange(t0, t1)
                 self.t_free = t
             else:
                 t = self.t_free
@@ -94,9 +99,18 @@ class Profile():
             var = LDeP + SDeP
         else:
             var = nc.variables[vname][t,station-1,:]
-        depth = self.calculate_depth(nc, t, station)
         line = {'Free': '--', 'Assi': '-'}
-        ax.plot(var, depth, line[label], label=label)
+        if type(t) == np.int64:
+            depth = self.calculate_depth(nc, t, station)
+            ax.plot(var, depth, line[label], label=label)
+        else:
+            depth  = self.calculate_depth(nc, t[0], station)
+            #ax.errorbar(np.mean(var, axis=0), depth, xerr=np.std(var, axis=0), fmt=line[label], label=label)
+            mean = np.mean(var, axis=0)
+            std = np.std(var, axis=0)
+            #ax.fill_betweenx(depth, mean-std, mean+std, label=label)
+            #ax.plot(mean, depth, line[label])
+            special.errorfill(mean, depth, xerr=std, label=label, ax=ax, alpha_fill=0.1)
 
     def plot_obs(self, ax, vname, station, date, label):
         print vname, station, date, label
@@ -104,7 +118,13 @@ class Profile():
         if self.t_obs is None:
             time = netCDF4.date2num(date, self.obs_JST)
             obs_time = nc.variables['obs_time'][:]
-            index = np.where(obs_time == time)[0]
+            if type(time) == np.int64:
+                index = np.where(obs_time == time)[0]
+            else:
+                index0 = np.where(obs_time == time[0])[0]
+                index1 = np.where(obs_time == time[1])[0]
+                index = np.arange(index0[0], index1[-1])
+            self.t_obs = index
         else:
             index = self.t_obs
         obs_station = nc.variables['obs_station'][index]
@@ -120,17 +140,16 @@ class Profile():
         elif vname == 'phytoplankton':
             var = df[df.type == varid['chlorophyll']]
             var.value = var.value / (Chl2C_m * PhyCN * C)
-            var.value = var.value * 2.18
+            #var.value = var.value * 2.18
         else:
             return
-        if vname == 'oxygen':
-            T = df[df.type == varid['temp']]
-            S = df[df.type == varid['salt']]
-            T = np.asarray(T.value)
-            S = np.asarray(S.value)
-            O2p = np.asarray(var.value)
-            var.value = O2p * O2_saturation(T, S) / 100.0
-        ax.plot(var.value, var.depth, 'o', mec='k', mfc='w', mew=1, label=label)
+        if type(time) == np.int64:
+            ax.plot(var.value, var.depth, 'o', mec='k', mfc='w', mew=1, label=label)
+        else:
+            var.depth = var.depth.apply(int)
+            mean = var.groupby('depth').mean()
+            std = var.groupby('depth').std()
+            ax.errorbar(mean.value, mean.index, xerr=std.value, fmt='o', mec='k', mfc='w', mew=1, label=label)
 
     def plot(self, ax, vname, station, date):
         if self.freefile is not None:
@@ -190,7 +209,18 @@ if __name__ == '__main__':
     freefile = 'Z:/roms/Apps/OB500_fennelP/NL07/ob500_sta.nc'
     assifile = 'Z:/roms/Apps/OB500_fennelP/4DVAR04/output/ob500_sta_0.nc'
     obsfile = 'F:/okada/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
-    from romspy import get_time
-    print get_time(assifile, 'all')
-    t_assi = 7
-    fennelP(3, dt.datetime(2012, 8, 5, 0), obsfile=obsfile, freefile=freefile, assifile=assifile, t_assi=t_assi)
+    """from romspy import get_time
+                print get_time(assifile, 'all')
+                t_assi = 7
+                fennelP(3, dt.datetime(2012, 8, 5, 0), obsfile=obsfile, freefile=freefile, assifile=assifile, t_assi=t_assi)"""
+
+    vname='temp'
+    station=4
+    fig, ax = plt.subplots(1,1,figsize=[10,5])
+    p = Profile(obsfile=obsfile, freefile=freefile)
+    #p = Profile(freefile=freefile)
+    #date=dt.datetime(2012,5,15,0)
+    date = [dt.datetime(2012,5,15,0), dt.datetime(2012,6,15,0)]
+    p.plot(ax, vname, station, date)
+    ax.set_xlim(5,30)
+    p.show()

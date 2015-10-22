@@ -172,8 +172,8 @@ if __name__ == '__main__':
     #dates = [datetime(2012,8,1,0), datetime(2012,9,1,0)]
     #outfile = 'F:/okada/Dropbox/Data/ob500_obs_20108_obweb-3.nc'
     dates = [datetime(2012,1,1,0), datetime(2013,1,1,0)]
-    outfile = 'F:/okada/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
-    inpfile = 'F:/okada/Dropbox/Data/obweb/converted_db_oxygen.csv'
-    stafile = 'F:/okada/Dropbox/Data/stations13.csv'
+    outfile = 'F:/okada/Dropbox/Data/ob500_obs_2012_obweb-5.nc'
+    inpfile = 'Z:/Data/obweb/converted_db_oxygen3.csv'
+    stafile = 'Z:/Data/stations13.csv'
     #varids = [10,15]
     make_obs_file(outfile, inpfile, stafile, dates, varids=None)

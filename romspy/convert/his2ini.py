@@ -93,14 +93,31 @@ def add_bio(ini, his, t):
     return ini
 
 
+def initialize(inifile, date, vname, value):
+    day = datetime.datetime.strftime(date, '%m%d')
+    inifile = inifile.format(day)
+    ini = netCDF4.Dataset(inifile, 'r+', format='NETCDF3_CLASSIC')
+    var = ini.variables[vname]
+    if var.ndim == 3:
+        var[0,:,:] = value
+    elif var.ndim == 4:
+        var[0,:,:,:] = value
+    ini.close()
+
+
 if __name__ == '__main__':
 
     #hisfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/NL05/ob500_his_0004.nc'
     #inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_NL05_{}.nc'
-    hisfile = 'Z:/roms/Apps/OB500_fennelP/NL08/ob500_rst.nc'
-    inifile = 'F:/okada/Dropbox/Data/ob500_rst_NL08_{}.nc'
+    hisfile = 'Z:/roms/Apps/OB500_fennelP/NL10/ob500_rst.nc'
+    inifile = 'F:/okada/Dropbox/Data/ob500_rst_NL10_{}.nc'
     import romspy
     print romspy.get_time(hisfile, 'all')
     date = datetime.datetime(2013, 1, 1, 0, 0, 0)
     redate = datetime.datetime(2012, 1, 1, 0, 0, 0)
-    his2ini(hisfile, inifile, date, redate)
+    #his2ini(hisfile, inifile, date, redate)
+    initialize(inifile, redate, 'zeta', 1.5)
+    initialize(inifile, redate, 'ubar', 0.0)
+    initialize(inifile, redate, 'vbar', 0.0)
+    initialize(inifile, redate, 'u', 0.0)
+    initialize(inifile, redate, 'v', 0.0)
