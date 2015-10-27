@@ -1,15 +1,16 @@
-# -*- coding: utf-8 -*-
+# coding: utf-8
+# (c) 2014-2015 Teruhisa Okada
 
 import netCDF4
 import datetime
 import numpy as np
 from numpy import dtype
+import romspy
+
+__version__ = 1.1   # 2015-10-27
 
 
 def his2ini(hisfile, inifile, date, redate=None):
-
-    GMT = 'seconds since 1968-05-23 00:00:00 GMT'
-    JST = 'seconds since 1968-05-23 09:00:00 GMT'
 
     daystart = datetime.datetime.strftime(date, '%m%d')
     inifile = inifile.format(daystart)
@@ -18,7 +19,7 @@ def his2ini(hisfile, inifile, date, redate=None):
     ini = netCDF4.Dataset(inifile, 'w', format='NETCDF3_CLASSIC')
 
     time = his.variables['ocean_time']
-    dnum = netCDF4.date2num(date, JST)
+    dnum = netCDF4.date2num(date, romspy.JST)
     t = np.where(time[:]==dnum)[0][0]
 
     for name in his.dimensions.keys():
@@ -38,7 +39,7 @@ def his2ini(hisfile, inifile, date, redate=None):
     temp = ini.createVariable('temp', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
     salt = ini.createVariable('salt', dtype('float32').char, ('ocean_time', 's_rho', 'eta_rho', 'xi_rho'))
 
-    time.units = GMT
+    time.units = romspy.GMT
     lon.units  = "degree_north"
     lat.units  = "degree_north"
     zeta.units = 'meter'
@@ -50,7 +51,7 @@ def his2ini(hisfile, inifile, date, redate=None):
     salt.units = 'PSU'
 
     if redate is not None:
-        time[0] = netCDF4.date2num(redate, JST)
+        time[0] = netCDF4.date2num(redate, romspy.JST)
     else:
         time[0] = his.variables['ocean_time'][t]
     lon[:,:]    = his.variables['lon_rho'][:,:]
@@ -107,17 +108,16 @@ def initialize(inifile, date, vname, value):
 
 if __name__ == '__main__':
 
-    #hisfile = '/Users/teruhisa/mnt/apps/OB500_fennelP/NL05/ob500_his_0004.nc'
-    #inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_NL05_{}.nc'
-    hisfile = 'Z:/roms/Apps/OB500_fennelP/NL10/ob500_rst.nc'
-    inifile = 'F:/okada/Dropbox/Data/ob500_rst_NL10_{}.nc'
-    import romspy
+    #HOME = 'F:/okada'
+    HOME = '/home/okada'
+    hisfile = HOME+'/apps/OB500P/case14/NL/ob500_his_0003.nc'
+    inifile = HOME+'/Dropbox/Data/ob500_ini_case14_{}.nc'
     print romspy.get_time(hisfile, 'all')
-    date = datetime.datetime(2013, 1, 1, 0, 0, 0)
-    redate = datetime.datetime(2012, 1, 1, 0, 0, 0)
-    #his2ini(hisfile, inifile, date, redate)
-    initialize(inifile, redate, 'zeta', 1.5)
-    initialize(inifile, redate, 'ubar', 0.0)
-    initialize(inifile, redate, 'vbar', 0.0)
-    initialize(inifile, redate, 'u', 0.0)
-    initialize(inifile, redate, 'v', 0.0)
+    date = datetime.datetime(2012, 4, 1, 0, 0, 0)
+    redate = datetime.datetime(2012, 4, 1, 0, 0, 0)
+    his2ini(hisfile, inifile, date, redate)
+    #initialize(inifile, redate, 'zeta', 1.5)
+    #initialize(inifile, redate, 'ubar', 0.0)
+    #initialize(inifile, redate, 'vbar', 0.0)
+    #initialize(inifile, redate, 'u', 0.0)
+    #initialize(inifile, redate, 'v', 0.0)

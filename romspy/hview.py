@@ -12,11 +12,14 @@ import datetime
 
 from basemap import basemap
 
+__version__ = 1.0
+__version__ = 1.1  # 2015-10-26
+
 
 class Dataset():
     JST = 'seconds since 1968-05-23 09:00:00 GMT'
 
-    def __init__(self, ncfile, mapfile):
+    def __init__(self, ncfile, mapfile=None):
         print '\nDataset(ncfile={})'.format(ncfile)
         self.ncfile = ncfile
         self.mapfile = mapfile
@@ -115,7 +118,8 @@ class Dataset():
         CF.clabel(fontsize=9, fmt=fmt, c='k')
 
         # basemap
-        basemap(self.mapfile)
+        if self.mapfile is not None:
+            basemap(self.mapfile)
 
         # finalize
         if vname == 'h':

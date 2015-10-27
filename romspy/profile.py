@@ -1,15 +1,17 @@
-# -*- coding: utf-8 -*-
-
-"""
-profile class (c) 2015-09-26 Teruhisa Okada
-"""
+# coding: utf-8
+# profile class (c) 2015-09-26 Teruhisa Okada
 
 import netCDF4
 import matplotlib.pyplot as plt
 import numpy as np
 import datetime as dt
 import pandas as pd
-from mpltools import special
+try:
+    from mpltools import special
+except:
+    pass
+
+__version__ = 0.1  # 2015-10-27
 
 
 class Profile():

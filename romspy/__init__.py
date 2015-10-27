@@ -1,12 +1,9 @@
 # coding: utf-8
 # (c) 2015 Teruhisa Okada
 
-"""
-2015-05-02 0.0
-2015-10-22 1.3
-"""
-
-__version__ = '1.3'
+__version__ = 0.0  # 2015-05-02
+__version__ = 0.3  # 2015-10-22
+__version__ = 0.4  # 2015-10-27
 
 from make_ini_file import make_ini_file
 from make_bry_file import make_bry_file
@@ -38,7 +35,12 @@ from run_time import run_time
 from pickup import pickup, pickup_line, line_parser
 from savefig import savefig
 
+from get_time import get_time
+from get_vnames import get_vnames
+
+GMT = 'seconds since 1968-05-23 00:00:00 GMT'
 JST = 'seconds since 1968-05-23 09:00:00 GMT'
+GMT_days = 'days since 1968-05-23 00:00:00 GMT'
 JST_days = 'days since 1968-05-23 09:00:00 GMT'
 
 g2mol_C = 1000.0 / 12.00

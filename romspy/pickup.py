@@ -6,7 +6,10 @@ import numpy as np
 from itertools import product
 import pandas as pd
 import datetime
-from geopy.distance import vincenty
+try:
+    from geopy.distance import vincenty
+except:
+    pass
 import matplotlib.pyplot as plt
 
 import romspy
@@ -31,7 +34,7 @@ def pickup(nc, vname, lon, lat, method='near'):
         elif var.ndim == 2:
             return var[y,x]
 
-    if method == 'inverse':
+    elif method == 'idw':
         s_lon = np.sign(d_lon[x])
         s_lat = np.sign(d_lat[y])
         if np.sign(d_lon[x+1]) != s_lon:
@@ -46,22 +49,28 @@ def pickup(nc, vname, lon, lat, method='near'):
         weight = np.zeros(4)
         var1 = [[] for _ in range(4)]
         for i, (x1, y1) in enumerate(product(x2, y2)):
-            dx = x - x1
-            dy = y - y1
-            weight[i] = np.sqrt(abs(dx) ** 2 + abs(dy) ** 2)
-            if var.ndim == 4:
-                var1[i] = var[:,:,y1,x1]
-            if var.ndim == 3:
-                var1[i] = var[:,y1,x1]
-            if var.ndim == 2:
-                var1[i] = var[y1,x1]
+            if nc.variables['mask_rho'][y1,x1] == 1:
+                dx = x - x1
+                dy = y - y1
+                weight[i] = np.sqrt(abs(dx) ** 2 + abs(dy) ** 2)
+                if var.ndim == 4:
+                    var1[i] = var[:,:,y1,x1]
+                if var.ndim == 3:
+                    var1[i] = var[:,y1,x1]
+                if var.ndim == 2:
+                    var1[i] = var[y1,x1]
+            else:
+                weight[i] = 0
+                var1[i] = 0
         return sum([var1[i] * weight[i] / sum(weight) for i in range(4)])
 
+    else:
+        print 'ERROR: your method "{}" is wrong'.format(method)
 
 def test_pickup():
     nc = netCDF4.Dataset('Z:/roms/Apps/OB500_fennelP/NL12/ob500_avg.nc')
     var0 = pickup(nc, 'temp', 135.380822, 34.671375)
-    var1 = pickup(nc, 'temp', 135.380822, 34.671375, 'inverse')
+    var1 = pickup(nc, 'temp', 135.380822, 34.671375, 'idw')
     fig, ax = plt.subplots(2,1)
     p0 = ax[0].pcolor(var0.T)
     p1 = ax[1].pcolor(var1.T)
@@ -69,7 +78,7 @@ def test_pickup():
     plt.show()
 
 
-def pickup_line(nc, vname, line, time, method='inverse', cff=1.0):
+def pickup_line(nc, vname, line, time, method='idw', cff=1.0, vmax=None, vmin=None):
     if type(time) == int:
         t = time
         time = netCDF4.num2date(nc.variables['ocean_time'][t], romspy.JST)
@@ -90,9 +99,12 @@ def pickup_line(nc, vname, line, time, method='inverse', cff=1.0):
         lat = l[1]
         v = pickup(nc, vname, lon, lat, method)
         var[s,:] = v[t,:]
-        h = pickup(nc, 'h', lon, lat, 'inverse')
-        zeta = pickup(nc, 'zeta', lon, lat, 'inverse')
-        depth[s,:] = (h + zeta[t]) * cs_r[:]
+        h = pickup(nc, 'h', lon, lat, 'idw')
+        try:
+            zeta = pickup(nc, 'zeta', lon, lat, 'idw')
+            depth[s,:] = (h + zeta[t]) * cs_r[:]
+        except:
+            depth[s,:] = (h + 1.0) * cs_r[:]
         if s == 0:
             dist[s,:] = 0
         else:
@@ -101,7 +113,10 @@ def pickup_line(nc, vname, line, time, method='inverse', cff=1.0):
             dist[s,:] = dist[s-1,:] + vincenty(back, fore).meters
 
     fig, ax = plt.subplots(figsize=[12,4])
-    cflevels = romspy.vrange(vname, unit='g')
+    if (vmax is None) or (vmin is None):
+        cflevels = romspy.vrange(vname, unit='g')
+    else:
+        cflevels = np.linspace(vmin, vmax, 21)
     clevels = cflevels
     origin = 'upper'
     #origin = 'lower'
@@ -123,10 +138,10 @@ def line_parser(linefile):
 
 
 def test_pickup_line():
-    nc = netCDF4.Dataset('Z:/roms/Apps/OB500_fennelP/NL12/ob500_avg.nc')
-    line = line_parser('F:/okada/Dropbox/Data/stations13A.csv')
+    nc = netCDF4.Dataset('Z:/apps/OB500P/case13/ob500_avg.nc')
+    line = line_parser('F:/okada/Dropbox/Data/stations_yodo.csv')
     #pickup_line(nc, 'temp', line, time=0, method='near')
-    pickup_line(nc, 'temp', line, time=0, method='inverse')
+    pickup_line(nc, 'salt', line, time=0, method='idw', vmin=0, vmax=32)
     plt.show()
 
 if __name__ == '__main__':
