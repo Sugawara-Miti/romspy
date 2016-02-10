@@ -51,12 +51,12 @@ class Hview(object):
 
 if __name__ == '__main__':
 
-    ncfile = 'Z:/apps/OB500P/case14/NL/ob500_avg.nc'
+    ncfile = 'Z:/apps/OB500P/case18/NL1/ob500_avg.nc'
 
     fig = plt.figure(figsize=(6,5))
 
     hview = Hview(ncfile, 'temp', k=1, cblabel='Temperature[C]')
-    ani = animation.FuncAnimation(fig, hview, frames=np.arange(24), interval=1000,
+    ani = animation.FuncAnimation(fig, hview, frames=np.arange(6), interval=1000,
                                   blit=True, repeat_delay=1000)
     #plt.show()
-    ani.save('ob500_avg_temp_1.mp4', writer='ffmpeg', fps=4)
+    ani.save('ob500_avg_temp_1.mp4', fps=4)

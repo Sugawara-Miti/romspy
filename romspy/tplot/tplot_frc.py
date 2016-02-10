@@ -47,4 +47,5 @@ def tplot_frc(frcfile, figdir, vname):
 
 if __name__ == '__main__':
 
-    tplot_frc('test/nc/ob500_frc_rain_2012.nc', './', 'rain')
+    #tplot_frc('/home/okada/Data/ob500_frc_rain_2012.nc', './', 'rain')
+    tplot_frc('/home/okada/Data/ob500_frc_wind_2012_rbf.nc', './', 'Uwind')

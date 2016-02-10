@@ -52,9 +52,11 @@ def rmse1(varid, date_range, obsfile, freefile, assifile=None):
         df.RMSE_a.plot()
 
 if __name__ == '__main__':
-    freefile = 'Z:/roms/Apps/OB500_fennelP/NL07/ob500_mod.nc'
-    obsfile = 'F:/okada/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
+    #freefile = 'Z:/roms/Apps/OB500_fennelP/NL07/ob500_mod.nc'
+    #obsfile = 'F:/okada/Dropbox/Data/ob500_obs_2012_obweb-3.nc'
+    freefile = 'Z:/apps/OB500P/testDA/undef1/output/ob500_mod_0.nc'
+    obsfile = 'Z:/Data/ob500_obs_2012_mp-2.nc'
     varid = 6
-    date_range = [dt.datetime(2012,1,1,0), dt.datetime(2013,1,1,0)]
+    date_range = [dt.datetime(2012,1,1,0), dt.datetime(2013,1,8,0)]
     rmse1(varid, date_range, obsfile, freefile)
     plt.show()

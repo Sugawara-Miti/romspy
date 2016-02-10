@@ -10,6 +10,7 @@ from matplotlib.ticker import *
 import matplotlib.pyplot as plt
 import csv
 
+
 def basemap(data='deg_OsakaBayMap_okada.bln'):
 
     """
@@ -22,8 +23,8 @@ def basemap(data='deg_OsakaBayMap_okada.bln'):
     patches = _read_lands(data)
 
     # Plot patches
-    p = PatchCollection(patches)#, alpha=0.5)
-    p.set_facecolor('w')
+    p = PatchCollection(patches, lw=0.5)
+    p.set_facecolor('#eeeeee') #'w') #, alpha=0.5
     ax = plt.gca()
     ax.add_collection(p)
 
@@ -34,6 +35,7 @@ def basemap(data='deg_OsakaBayMap_okada.bln'):
     ax.yaxis.set_major_formatter(FormatStrFormatter('%.1f'))
     ax.set_xlim([134.82, 135.48])
     ax.set_ylim([34.20, 34.76])
+
 
 def _read_lands(data):
 

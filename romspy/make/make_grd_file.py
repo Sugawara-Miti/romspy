@@ -3,6 +3,8 @@
 import matplotlib.pyplot as plt
 import csv
 import numpy as np
+import shutil
+import romspy
 
 
 def _get_h(csvfile, x_rho, y_rho, check=None):
@@ -19,9 +21,9 @@ def _get_h(csvfile, x_rho, y_rho, check=None):
     return h
 
 
-def make_grd_file(grdfile, meshfile, masklinesfile, geo=True, smoother='Laplacian'):
+def make_grd_file(grdfile, meshfile, geo=True, smoother='Laplacian'):
 
-    print 'inporting pyroms ..'
+    print 'importing pyroms ..'
     import pyroms
 
     name = 'ob500_grd'
@@ -70,16 +72,40 @@ def make_grd_file(grdfile, meshfile, masklinesfile, geo=True, smoother='Laplacia
     grd = pyroms.grid.ROMS_Grid(name, hgrid, vgrid)
     pyroms.grid.write_ROMS_grid(grd, grdfile)
 
-    # masklines
 
-    if masklinesfile:
-        import romspy
-        romspy.add_masklines(grdfile, masklinesfile)
-
-
-if __name__ == '__main__':
-
+def test0():
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-9.nc'
     meshfile = '/Users/teruhisa/Dropbox/Data/Grid/9/mesh-v5.csv'
     masklinesfile = '/Users/teruhisa/Dropbox/Data/masklines.csv'
     make_grd_file(grdfile, meshfile, masklinesfile)  # smoother=False
+
+
+def test1():
+    grdfile = '/home/okada/Data/ob500_grd-11_3.nc'
+    meshfile = '/home/okada/Dropbox/Data/Grid/11_3/mesh.csv'
+    masklinesfile = '/home/okada/Dropbox/Data/Grid/masklines.csv'
+    make_grd_file(grdfile, meshfile, masklinesfile)  # smoother=False
+    romspy.add_masklines(grdfile, masklinesfile)
+
+
+def test2():
+    grdfile = '/home/okada/Data/ob500_grd-11_3.nc'
+    newfile = '/home/okada/Data/ob500_grd-12_h50.nc'
+    shutil.copyfile(grdfile, newfile)
+    romspy.initialize(newfile, 'h', 50.0)
+
+
+def test3():
+    grdfile = '/home/okada/Data/ob500_grd-12_h50_2.nc'
+    meshfile = '/home/okada/Dropbox/Data/Grid/12_h50_2/mesh.csv'
+    masklinesfile = '/home/okada/Dropbox/Data/Grid/masklines.csv'
+    make_grd_file(grdfile, meshfile, smoother=False)
+    romspy.add_masklines(grdfile, masklinesfile)
+    romspy.initialize(grdfile, 'h', 50.0)
+
+
+if __name__ == '__main__':
+    """
+    This test should be run only in hydcl00.
+    """
+    test3()

@@ -4,5 +4,9 @@
 import matplotlib.pyplot as plt
 
 
-def savefig(filename, dpi=300):
-    plt.savefig(filename, bbox_inches='tight', dpi=dpi)
+def savefig(figfile, dpi=300):
+    plt.savefig(figfile, bbox_inches='tight', dpi=dpi)
+
+
+if __name__ == '__main__':
+    savefig('tplot.png')

@@ -11,15 +11,19 @@ import netCDF4
 from boundary import *
 
 __version__ = 3.2
+
 bio_units = {'others':'millimole meter-3',
              'chlorophyll':'milligram meter-3',
              'alkalinity':'milliequivalens meter-3'}
 
 
-def make_bry_file(ncfile, dims, dates, zetafiles, tempfiles, biofiles=None, biofiles2=None):
+def make_bry_file(ncfile, dims, dates, zetafile, tempfiles, biofiles=None, biofiles2=None):
 
     # read
-    zeta_out = bry_zeta_dat(dims, zetafiles)
+    #zeta_out = bry_zeta_dat(dims, zetafiles)  # fennelP-5
+    #zeta_out = bry_zeta(dims, zetafile)       # P-6
+    #zeta_out = bry_zeta_avg(dims, zetafile)    # P-7
+    zeta_out = bry_zeta_avg2(dims, zetafile)   # P-7_2
     temp_out, time_temp = bry_var(dims, tempfiles, dates, 'D')  # ver3.1
     #temp_out = bry_wq_csv(dims, 'temp', wqfiles, dates)
     #salt_out = bry_wq_csv(dims, 'salt', wqfiles, dates)
@@ -73,8 +77,49 @@ def make_bry_file(ncfile, dims, dates, zetafiles, tempfiles, biofiles=None, biof
 
 if __name__ == '__main__':
 
+    HOME = 'F:/okada/Dropbox/Data/boundary/'
+    #ncfile = 'Z:/Data/ob500_bry_2012_P-6.nc'
+    #ncfile = 'Z:/Data/ob500_bry_2012_P-7.nc'
+    ncfile = 'Z:/Data/ob500_bry_2012_P-7_2.nc'
+
+    temp = {}
+    bio = {}
+    dims = {'xi':117, 'eta':124, 's':20}
+    dates = ['2012-01-01', '2013-01-01']
+    zeta = HOME+'zeta_op_2012.csv'
+    temp['south_bot'] = HOME+'temp_south_bot_A11_2012.csv'
+    temp['south_sur'] = HOME+'temp_south_sur_A11_2012.csv'
+    temp['west_bot'] = HOME+'temp_west_bot_akashi_2012.csv'
+    temp['west_sur'] = HOME+'temp_west_sur_akashi_2012.csv'
+    bio['west'] = HOME+'bio_west_seto_2001-2013_15D.csv'
+    bio['south'] = HOME+'bio_south_seto_2001-2013_15D.csv'
+    bio['others'] = HOME+'bio_others.csv'
+    make_bry_file(ncfile, dims, dates, zeta, temp, bio)
+
+    """
+    #HOME = 'F:/okada/Dropbox/Data/boundary/'
+    HOME = '/home/okada/Dropbox/Data/boundary/'
+    ncfile = '/home/okada/Dropbox/Data/ob500_bry_2012_fennelP-5.nc'
+
+    temp = {}
+    bio = {}
+    dims = {'xi':117, 'eta':124, 's':20}
+    dates = ['2012-01-01', '2013-01-01']
+    zeta = [HOME+'zeta_hour/2012_Awazu/zeta.dat',
+            HOME+'zeta_hour/2012_Ei/zeta.dat',
+            HOME+'zeta_hour/2012_Kainan/zeta.dat',
+            HOME+'zeta_hour/2012_Takasago/zeta.dat']
+    temp['south_bot'] = HOME+'temp_south_bot_A11_2012.csv'
+    temp['south_sur'] = HOME+'temp_south_sur_A11_2012.csv'
+    temp['west_bot'] = HOME+'temp_west_bot_akashi_2012.csv'
+    temp['west_sur'] = HOME+'temp_west_sur_akashi_2012.csv'
+    bio['west'] = HOME+'bio_west_seto_2001-2013_15D.csv'
+    bio['south'] = HOME+'bio_south_seto_2001-2013_15D.csv'
+    bio['others'] = HOME+'bio_others.csv'
+    make_bry_file(ncfile, dims, dates, zeta, temp, bio)"""
+
+    """
     ncfile = 'F:/okada/Dropbox/Data/ob500_bry_2012_fennelP-5.nc'
-    #ncfile = 'V:/ROMS/boundary/ob500_bry_2012_fennelP-5.nc'
     dims = {'xi':117, 'eta':124, 's':20}
     dates = ['2012-01-01', '2013-01-01']
     zeta = ['V:/ROMS/boundary/zeta_hour/2012_Awazu/zeta.dat',
@@ -90,8 +135,4 @@ if __name__ == '__main__':
     bio['west'] = 'V:/ROMS/boundary/bio_west_seto_2001-2013_15D.csv'
     bio['south'] = 'V:/ROMS/boundary/bio_south_seto_2001-2013_15D.csv'
     bio['others'] = 'V:/ROMS/boundary/bio_others.csv'
-    #oxygen = {}
-    #oxygen['west'] = 'V:/ROMS/boundary/oxygen_west.csv'
-    #oxygen['south'] = 'V:/ROMS/boundary/oxygen_south.csv'
-
-    make_bry_file(ncfile, dims, dates, zeta, temp, bio)
+    make_bry_file(ncfile, dims, dates, zeta, temp, bio)"""

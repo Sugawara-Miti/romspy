@@ -21,6 +21,7 @@ def _parse(date, hour):
     delta = datetime.timedelta(hours=float(hour))
     return dt + delta
 
+
 def read_osaka(csvfile):
     """
     csvfile is from dbfile.

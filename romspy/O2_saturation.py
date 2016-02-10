@@ -44,24 +44,45 @@ def O2_saturation(T,S):
     # Convert to mmol/m3
     #  mmol/m3 = 44.66 ml/l
     #  mg/l = ml/l * 1.42903 mg/ml
-    return O / 1.42903 * 44.66
-
-
-def DOsat_mol(T,S):
-    return O2_saturation(T,S)
+    #return O * (1.42903 * 44.66)  # pyroms
+    return O * 1.42903             # okada 2015-11-28
 
 
 def DOsat_g(T,S):
-    return O2_saturation(T,S) * mol2g_O2
+    return O2_saturation(T,S)
 
-if __name__ == '__main__':
 
+def DOsat_mol(T,S):
+    return O2_saturation(T,S) * g2mol_O2
+
+
+def DOp2g(DOp,T,S):
+    return DOsat_g(T,S) * DOp / 100.0
+
+
+def DOp2mol(DOp,T,S):
+    return DOsat_mol(T, S) * DOp / 100.0
+
+
+def _test():
     temp = np.asarray([10,20,25,25])
     salt = np.asarray([32,32,32,15])
     O2_g = np.asarray([3,3,3,3])
     O2_mol = O2_g * g2mol_O2
     O2sat_g = DOsat_g(temp, salt)
-    O2sat_mol = O2sat_g * g2mol_O2
+    O2sat_mol = DOsat_mol(temp, salt)
     print "O2    = {}(mg/l) = {}(mmol/m3)".format(O2_g, O2_mol)
     print "O2sat = {}(mg/l) = {}(mmol/m3)".format(O2sat_g, O2sat_mol)
     print "O2    = {}(%)".format(O2_g / O2sat_g * 100.0)
+    print O2_saturation(temp, salt)
+
+
+if __name__ == '__main__':
+    DOmg = 0.454
+    DOp = 6.64
+    T = 27
+    S = 30
+    print DOp2mol(DOp,T,S), 'mmol/m3'
+    print DOmg * g2mol_O2, 'mmol/m3'
+    print DOsat_g(T,S)
+    

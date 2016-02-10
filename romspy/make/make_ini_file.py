@@ -8,10 +8,14 @@
 
 from datetime import datetime
 import netCDF4
+import numpy as np
 from numpy import dtype
+#import matplotlib.pyplot as plt
+import pandas as pd
+import itertools
 
 
-def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None, dstart=datetime(2012,1,1,0,0,0)):
+def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None):
 
     kmax = 20
     Nbed = 20
@@ -24,6 +28,7 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None, dstart=datetime(
     h   = nc.variables['h'][:,:]
     nc.close()
 
+    dstart = datetime(2012,1,1,0,0,0)
     GMT = 'seconds since 1968-05-23 00:00:00 GMT'
     JST = 'seconds since 1968-05-23 09:00:00 GMT'
     time_out  = [netCDF4.date2num(dstart, JST)]
@@ -41,7 +46,7 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None, dstart=datetime(
     nc.createDimension('eta_v',  jmax-1)
     nc.createDimension('s_rho',  kmax)
     nc.createDimension('s_w',    kmax+1)
-    nc.createDimension('ocean_time', len(time_out))
+    nc.createDimension('ocean_time', None)
 
     time = nc.createVariable('ocean_time', dtype('double').char, ('ocean_time',))
     lon_rho = nc.createVariable('lon_rho', dtype('float32').char, ('eta_rho', 'xi_rho'))
@@ -68,13 +73,13 @@ def make_ini_file(grdfile, inifile, biofile=None, bgcfile=None, dstart=datetime(
     time[:]       = time_out
     lon_rho[:,:]  = lon
     lat_rho[:,:]  = lat
-    zeta[:,:,:]   = 0.0  # 1.5
+    zeta[:,:,:]   = 1.5
     ubar[:,:,:]   = 0.0
     vbar[:,:,:]   = 0.0
     u[:,:,:,:]    = 0.0
     v[:,:,:,:]    = 0.0
-    temp[:,:,:,:] = 0.0  # 13.0
-    salt[:,:,:,:] = 0.0  # 32.5
+    temp[:,:,:,:] = 13.0
+    salt[:,:,:,:] = 32.5
 
     zeta.time = 'ocean_time'
     ubar.time = 'ocean_time'
@@ -104,19 +109,18 @@ def add_bio(nc, biofile):
     C = 12.01
     N = 14.01
     P = 30.97
-    O2 = 32.00
 
     bio_names = ['NO3','NH4','chlorophyll','phytoplankton','zooplankton',
                  'LdetritusN','SdetritusN',
                  'oxygen','PO4','LdetritusP','SdetritusP']
     bio_out = {}
-    bio_out["chlorophyll"]   = 0.0  # 1.0
-    bio_out["NO3"]           = 0.0  # 0.0233 / N * 1000.0
-    bio_out["NH4"]           = 0.0  # 0.0193 / N * 1000.0
-    bio_out["SdetritusN"]    = 0.0  # 0.0296 / N * 1000.0
-    bio_out["PO4"]           = 0.0  # 0.0135 / P * 1000.0
-    bio_out["SdetritusP"]    = 0.0  # 0.0080 / P * 1000.0
-    bio_out["oxygen"]        = 0.0  # 400.0
+    bio_out["chlorophyll"]   = 1.0
+    bio_out["NO3"]           = 0.0233 / N * 1000.0
+    bio_out["NH4"]           = 0.0193 / N * 1000.0
+    bio_out["SdetritusN"]    = 0.0296 / N * 1000.0
+    bio_out["PO4"]           = 0.0135 / P * 1000.0
+    bio_out["SdetritusP"]    = 0.0080 / P * 1000.0
+    bio_out["oxygen"]        = 400.0
 
     bio_out["phytoplankton"] = bio_out["chlorophyll"] / (Chl2C * PhyCN * C)
     bio_out["zooplankton"]   = bio_out["phytoplankton"] * 0.1
@@ -138,9 +142,59 @@ def add_bio(nc, biofile):
     return nc
 
 
-if __name__ == '__main__':
+def add_bgc(nc, Nbed, h, bgcfile):
 
+    """
+    2015/05/01 okada  Read from rst file.
+    """
+
+    bgc_names = ['O2','NH4','NO3','PO4','SO4','H2S','Mn','Fe','CH4','DOMf','DOMs',
+                 'POMf','POMs','POMn','FeOOHA','FeOOHB','FeOOHP','MnO2A','MnO2B',
+                 'S0','FeS','FeS2']
+    bgc_out = {}
+    imax = len(nc.dimensions['xi_rho'])
+    jmax = len(nc.dimensions['eta_rho'])
+    for name in bgc_names:
+        bgc_out[name] = np.ndarray(shape=[1, Nbed, jmax, imax])
+    rst1 = pd.read_csv(bgcfile.format(1))
+    rst2 = pd.read_csv(bgcfile.format(2))
+    print rst1.describe()
+
+    for name in bgc_names:
+        print name,
+        for i, j in itertools.product(range(imax), range(jmax)):
+            if 0.5 < h[j,i] < 18.0:
+                bgc_out[name][0,:,j,i] = rst1[name][:Nbed]
+            elif h[j,i] >= 18.0:
+                bgc_out[name][0,:,j,i] = rst2[name][:Nbed]
+            else:
+                bgc_out[name][0,:,j,i] = 0.0
+    nc.createDimension('Nbed', Nbed)
+    nc.createDimension('bgc_tracer', len(bgc_names))
+    bgc = {}
+    for name in bgc_names:
+        bgc[name] = nc.createVariable('bgc_'+name, dtype('float32').char, ('ocean_time', 'Nbed', 'eta_rho', 'xi_rho'))
+    for name in bgc_names:
+        bgc[name].units = 'milimole meter-3'
+    for name in bgc_names:
+        bgc[name][:,:,:,:] = bgc_out[name]
+    for name in bgc_names:
+        bgc[name].time = 'ocean_time'
+    return nc
+
+
+def test1():
     grdfile = '/Users/teruhisa/Dropbox/Data/ob500_grd-8.nc'
-    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_zero_0805.nc'
+    inifile = '/Users/teruhisa/Dropbox/Data/ob500_ini_fennelP-8.nc'
     #bgcfile = 'rst{}.csv'
-    make_ini_file(grdfile, inifile, biofile=0, dstart=datetime(2012,8,5,0,0,0))
+    make_ini_file(grdfile, inifile, biofile=0)
+
+
+def test2():
+    grdfile = '/home/okada/Data/ob500_grd-12_h50_2.nc'
+    inifile = '/home/okada/Data/ob500_ini_grd-12_2.nc'
+    make_ini_file(grdfile, inifile, biofile=0)
+
+
+if __name__ == '__main__':
+    test2()

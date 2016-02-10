@@ -105,6 +105,6 @@ if __name__ == '__main__':
     test = 0
 
     if test == 0:
-        vview('F:/okada/Dropbox/Data/line.csv',
-              'F:/okada/Dropbox/Data/ob500_rst_NL08_0101.nc',
+        vview('/home/okada/Dropbox/Data/line.csv',
+              '/home/okada/Dropbox/Data/ob500_rst_NL08_0101.nc',
               'chlorophyll')

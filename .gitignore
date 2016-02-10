@@ -7,3 +7,5 @@ example/*/nc
 
 *.nc
 *.stackdump
+*.json
+*.vtk
