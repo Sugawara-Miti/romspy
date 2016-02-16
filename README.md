@@ -4,21 +4,19 @@ Tools for ROMS in Python
 
 ### Install
 ```sh
+git clone https://github.com/okadate/romspy.git
 cd romspy
 python setup.py install
 ```
 
-### example
+### horizontal view plot
 ```py
 import romspy
+nc = romspy.hview.Dataset('test_his.nc')
 
-romspy.hview('test.nc', 'test.png', 'temp', t=0, k=20)
-```
+# s-coordinate plot
+nc.sview(vname='temp', t=0, k=0)
 
-### future version
-```py
-import romspy
-
-nc = romspy.dataset(grd='test_grd.nc')
-nc.basemap()
+# z-level plot
+nc.zview(vname='temp', t=0, depth=0)
 ```
