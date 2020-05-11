@@ -2,14 +2,21 @@
 
 Tools for ROMS in Python
 
-### Install
+## Installation
+
+Requiring module
+
+- netCDF4
+
 ```sh
 git clone https://github.com/okadate/romspy.git
 cd romspy
 python setup.py install
 ```
 
-### horizontal view plot
+## Example
+
+### Horizontal view plot
 ```py
 import romspy
 nc = romspy.hview.Dataset('test_his.nc')

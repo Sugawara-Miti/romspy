@@ -1,10 +1,8 @@
 # coding: utf-8
-# (c) 2015-2016 Teruhisa Okada
+# (c) 2015-2020 Teruhisa Okada
 
 from add_masklines import add_masklines
 from basemap import basemap
-from c_his2ini import his2ini
-from c_phy2chl import phy2chl
 from cmap import cmap
 from dataset import Dataset
 from edit_nc_var import edit_nc_var
